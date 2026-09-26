@@ -1,0 +1,54 @@
+.root {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--control-height-compact);
+  gap: var(--space-2);
+  padding: 0 var(--space-3);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface-subtle);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-caption);
+}
+
+.isSelected {
+  border-color: var(--color-border-selected);
+  background-color: var(--color-surface-selected);
+  color: var(--color-text-selected);
+}
+
+.leadingIcon {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+}
+
+.label {
+  min-width: 0;
+}
+
+.removeButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1rem;
+  height: 1rem;
+  margin-right: calc(var(--space-1) * -1);
+  color: var(--color-text-secondary);
+}
+
+.removeButton:hover {
+  color: var(--color-text-primary);
+}
+
+.removeButton:focus-visible {
+  outline: none;
+  border-radius: var(--radius-sm);
+  box-shadow: var(--focus-ring);
+}
+
+.isSelected .removeButton {
+  color: var(--color-text-selected);
+}

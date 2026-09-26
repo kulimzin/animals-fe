@@ -7,14 +7,17 @@
 | `npm run lint`               | ESLint                                           |
 | `npm run format`             | Форматирование проекта с помощью Prettier        |
 | `npm run format:check`       | Проверка форматирования без изменения файлов     |
+| `npm test`                   | Unit- и component-тесты через Vitest             |
 | `npm run build`              | TypeScript через tsc -b и production-сборка Vite |
 | `./node_modules/.bin/tsc -b` | Только проверка TypeScript, если сборка не нужна |
 
 Lefthook устанавливает Git hooks при `npm install`: pre-commit форматирует staged-файлы и проверяет
-staged TypeScript-файлы ESLint, а pre-push запускает полный lint, проверку форматирования и сборку.
-После добавления unit-тестов включить их в pre-push.
+staged TypeScript-файлы ESLint, а pre-push запускает полный lint, проверку форматирования, сборку и
+unit- и component-тесты.
 
-Vitest, React Testing Library, user-event и Playwright установлены. На момент выделения этого документа тесты и npm-скрипты их запуска ещё не настроены. При настройке обновить этот раздел фактическими командами.
+Vitest, React Testing Library, user-event и Playwright установлены. Unit- и component-тесты
+запускаются командой `npm test`. Сквозные сценарии Playwright будут добавлены вместе с
+пользовательскими потоками карты.
 
 ## Выбор проверок
 

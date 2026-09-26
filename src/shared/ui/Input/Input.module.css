@@ -1,0 +1,104 @@
+.field {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.label {
+  color: var(--color-text-primary);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-caption);
+}
+
+.control {
+  position: relative;
+}
+
+.input {
+  display: block;
+  width: 100%;
+  min-height: var(--control-height);
+  padding: 0 var(--space-3);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-sm);
+  outline: none;
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-body);
+  transition:
+    border-color var(--transition-duration-fast),
+    box-shadow var(--transition-duration-fast),
+    background-color var(--transition-duration-fast);
+}
+
+.input::placeholder {
+  color: var(--color-text-secondary);
+}
+
+.input:focus {
+  border-color: var(--color-border-focus);
+  box-shadow: var(--focus-ring);
+}
+
+.input:disabled {
+  background-color: var(--color-surface-subtle);
+  color: var(--color-text-disabled);
+  cursor: not-allowed;
+}
+
+.input:read-only {
+  background-color: var(--color-surface-subtle);
+}
+
+.hasLeadingIcon {
+  padding-left: calc(var(--control-height) - var(--space-2));
+}
+
+.hasTrailingElement {
+  padding-right: calc(var(--control-height) - var(--space-2));
+}
+
+.leadingIcon,
+.trailingElement {
+  position: absolute;
+  top: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--control-height);
+  height: var(--control-height);
+  color: var(--color-text-secondary);
+  transform: translateY(-50%);
+}
+
+.leadingIcon {
+  left: 0;
+}
+
+.trailingElement {
+  right: 0;
+}
+
+.hasError .input {
+  border-color: var(--color-status-danger);
+}
+
+.hasError .input:focus {
+  box-shadow: var(--focus-ring-danger);
+}
+
+.hint,
+.error {
+  margin: 0;
+  font-size: var(--font-size-caption);
+  line-height: var(--line-height-caption);
+}
+
+.hint {
+  color: var(--color-text-secondary);
+}
+
+.error {
+  color: var(--color-status-danger);
+}
