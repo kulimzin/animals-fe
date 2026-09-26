@@ -33,3 +33,6 @@ Thumbs.db
 
 # Local tool configuration
 lefthook-local.yml
+
+*storybook.log
+storybook-static
