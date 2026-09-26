@@ -1,0 +1,22 @@
+pre-commit:
+  jobs:
+    - name: prettier
+      glob: '*.{ts,tsx,js,json,css,md,yml,yaml}'
+      run: npm exec prettier -- --write {staged_files}
+      stage_fixed: true
+
+    - name: eslint
+      glob: '*.{ts,tsx}'
+      run: npm exec eslint -- {staged_files}
+
+pre-push:
+  parallel: true
+  jobs:
+    - name: lint
+      run: npm run lint
+
+    - name: format
+      run: npm run format:check
+
+    - name: build
+      run: npm run build
