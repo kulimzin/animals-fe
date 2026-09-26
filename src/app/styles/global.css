@@ -1,18 +1,15 @@
+@import './tokens.css';
+@import './reset.css';
+
 :root {
-  font-family: system-ui, sans-serif;
+  font-family: var(--font-family-sans);
   color-scheme: light;
-  background-color: #fff;
-  color: #111;
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
-
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
 }
 
 html,
@@ -23,11 +20,4 @@ body {
 
 #root {
   min-height: 100svh;
-}
-
-button,
-input,
-textarea,
-select {
-  font: inherit;
 }
