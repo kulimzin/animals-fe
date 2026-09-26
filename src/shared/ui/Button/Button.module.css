@@ -1,0 +1,116 @@
+.root {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--control-height);
+  gap: var(--space-2);
+  padding: 0 var(--space-4);
+  border: var(--border-width) solid transparent;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-body);
+  transition:
+    background-color var(--transition-duration-fast),
+    border-color var(--transition-duration-fast),
+    color var(--transition-duration-fast),
+    box-shadow var(--transition-duration-fast);
+}
+
+.root:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.root:disabled {
+  color: var(--color-text-disabled);
+  cursor: not-allowed;
+}
+
+.primary {
+  background-color: var(--color-action-primary);
+  color: var(--color-action-on-primary);
+}
+
+.primary:not(:disabled):hover {
+  background-color: var(--color-action-primary-hover);
+}
+
+.primary:not(:disabled):active {
+  background-color: var(--color-action-primary-active);
+}
+
+.primary:disabled {
+  background-color: var(--color-surface-subtle);
+}
+
+.secondary {
+  border-color: var(--color-border);
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
+}
+
+.secondary:not(:disabled):hover {
+  background-color: var(--color-action-secondary-hover);
+}
+
+.secondary:not(:disabled):active {
+  background-color: var(--color-action-secondary-active);
+}
+
+.secondary:disabled {
+  background-color: var(--color-surface-subtle);
+}
+
+.danger {
+  background-color: var(--color-action-danger);
+  color: var(--color-action-on-danger);
+}
+
+.danger:not(:disabled):hover {
+  background-color: var(--color-action-danger-hover);
+}
+
+.danger:not(:disabled):active {
+  background-color: var(--color-action-danger-active);
+}
+
+.danger:disabled {
+  background-color: var(--color-surface-subtle);
+}
+
+.iconOnly {
+  width: var(--control-height);
+  padding: 0;
+}
+
+.icon {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon > svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.label {
+  min-width: 0;
+}
+
+.loader {
+  width: 1rem;
+  height: 1rem;
+  border: 0.125rem solid currentcolor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spin 700ms linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
