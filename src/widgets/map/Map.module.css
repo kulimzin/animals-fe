@@ -1,0 +1,11 @@
+.map {
+  width: 100%;
+  height: 100%;
+}
+
+@media (max-width: 40rem) {
+  .map :global(.maplibregl-ctrl-top-right) {
+    top: auto;
+    bottom: 3rem;
+  }
+}
