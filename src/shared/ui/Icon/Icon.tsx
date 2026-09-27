@@ -15,6 +15,12 @@ const iconPaths = {
       <circle cx="12" cy="10" r="2.5" />
     </>
   ),
+  search: (
+    <>
+      <circle cx="11" cy="11" r="7" />
+      <path d="m20 20-4-4" />
+    </>
+  ),
   chevronDown: <path d="m6 9 6 6 6-6" />,
   thumbUp: (
     <path d="M7 10v10H4V10h3Zm3 10h6.2a2 2 0 0 0 1.95-1.55l1.2-5A2 2 0 0 0 17.4 11H14l.5-3.1A2.1 2.1 0 0 0 12.4 5.5L8.8 10H7v10h3Z" />
