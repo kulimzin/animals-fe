@@ -5,6 +5,7 @@ import {
   type ObservationMapQuery,
   type ObservationPeriod,
 } from '../../entities/observation'
+import { ObservationDetailsDialog } from '../../features/view-observation'
 import type { GeoBounds } from '../../shared/lib/geo'
 import { Map } from '../../widgets/map'
 import { MapFilterPanel } from '../../widgets/map-filter-panel'
@@ -51,6 +52,12 @@ export function MapPage() {
         onAnimalIdsChange={handleAnimalIdsChange}
         onPeriodChange={handlePeriodChange}
       />
+      {selectedObservationId ? (
+        <ObservationDetailsDialog
+          observationId={selectedObservationId}
+          onClose={() => setSelectedObservationId(null)}
+        />
+      ) : null}
     </main>
   )
 }
