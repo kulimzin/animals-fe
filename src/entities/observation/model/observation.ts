@@ -17,8 +17,28 @@ export const observationMapResponseSchema = z.object({
   items: z.array(observationMapItemSchema),
 })
 
+export const observationVoteSchema = z.enum(['confirm', 'reject'])
+
+export const observationDetailsSchema = observationMapItemSchema.extend({
+  location: observationMapItemSchema.shape.location.extend({
+    label: z.string().min(1),
+  }),
+  note: z.string().nullable(),
+  votes: z.object({
+    confirm: z.number().int().nonnegative(),
+    reject: z.number().int().nonnegative(),
+  }),
+  userVote: observationVoteSchema.nullable(),
+})
+
+export const observationDetailsResponseSchema = z.object({
+  item: observationDetailsSchema.nullable(),
+})
+
 export type ObservationPeriod = z.infer<typeof observationPeriodSchema>
 export type ObservationMapItem = z.infer<typeof observationMapItemSchema>
+export type ObservationDetails = z.infer<typeof observationDetailsSchema>
+export type ObservationVote = z.infer<typeof observationVoteSchema>
 
 export type ObservationMapQuery = {
   animalIds: string[]

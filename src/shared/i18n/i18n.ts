@@ -4,6 +4,27 @@ import { initReactI18next } from 'react-i18next'
 const resources = {
   en: {
     translation: {
+      common: {
+        retry: 'Try again',
+      },
+      observation: {
+        close: 'Close encounter details',
+        date: 'Date',
+        error: 'Could not load the encounter details.',
+        label: 'Encounter details',
+        labelWithAnimal: '{{animal}} encounter details',
+        loading: 'Loading encounter details…',
+        location: 'Location',
+        notFound: 'This encounter was not found or is no longer available.',
+        note: 'Note',
+        time: 'Time',
+        voting: {
+          confirm: 'Confirm',
+          error: 'Could not save your vote. Try again.',
+          hint: 'Did you see this animal here?',
+          reject: 'Cannot confirm',
+        },
+      },
       filters: {
         animals: 'Animals',
         removeAnimal: 'Remove {{animal}}',
@@ -30,6 +51,27 @@ const resources = {
   },
   ru: {
     translation: {
+      common: {
+        retry: 'Повторить',
+      },
+      observation: {
+        close: 'Закрыть сведения о встрече',
+        date: 'Дата',
+        error: 'Не удалось загрузить сведения о встрече.',
+        label: 'Сведения о встрече',
+        labelWithAnimal: 'Сведения о встрече: {{animal}}',
+        loading: 'Загружаем сведения о встрече…',
+        location: 'Местоположение',
+        notFound: 'Встреча не найдена или больше недоступна.',
+        note: 'Заметка',
+        time: 'Время',
+        voting: {
+          confirm: 'Подтверждаю',
+          error: 'Не удалось сохранить голос. Попробуйте ещё раз.',
+          hint: 'Вы видели это животное здесь?',
+          reject: 'Не подтверждаю',
+        },
+      },
       filters: {
         animals: 'Животные',
         removeAnimal: 'Убрать {{animal}}',

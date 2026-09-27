@@ -62,6 +62,23 @@
   background-color: var(--color-surface-subtle);
 }
 
+.success {
+  background-color: var(--color-action-success);
+  color: var(--color-action-on-success);
+}
+
+.success:not(:disabled):hover {
+  background-color: var(--color-action-success-hover);
+}
+
+.success:not(:disabled):active {
+  background-color: var(--color-action-success-active);
+}
+
+.success:disabled {
+  background-color: var(--color-surface-subtle);
+}
+
 .danger {
   background-color: var(--color-action-danger);
   color: var(--color-action-on-danger);
