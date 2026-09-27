@@ -25,6 +25,13 @@ export const Secondary: Story = {
   },
 }
 
+export const Success: Story = {
+  args: {
+    children: 'Подтвердить',
+    variant: 'success',
+  },
+}
+
 export const Danger: Story = {
   args: {
     children: 'Удалить встречу',
