@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import { cleanup, render } from '@testing-library/react'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { i18n } from '../../shared/i18n/i18n'
 import { Map } from './Map'
@@ -62,6 +62,10 @@ vi.mock('maplibre-gl', () => {
     NavigationControl: NavigationControlMock,
     setWorkerUrl: vi.fn(),
   }
+})
+
+beforeEach(async () => {
+  await i18n.changeLanguage('ru')
 })
 
 afterEach(async () => {

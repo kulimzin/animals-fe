@@ -3,8 +3,8 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { cleanup, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { afterEach, describe, expect, it, vi } from 'vitest'
-import '../../shared/i18n/i18n'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { i18n } from '../../shared/i18n/i18n'
 import { MapPage } from './MapPage'
 
 vi.mock('../../widgets/map', () => ({
@@ -36,6 +36,10 @@ vi.mock('../../widgets/map', () => ({
 vi.mock('../../widgets/map-filter-panel', () => ({
   MapFilterPanel: () => <div>Содержимое фильтров</div>,
 }))
+
+beforeEach(async () => {
+  await i18n.changeLanguage('ru')
+})
 
 afterEach(() => {
   cleanup()

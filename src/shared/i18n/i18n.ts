@@ -1,9 +1,24 @@
 import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
 
+type SupportedLanguage = 'en' | 'ru'
+
+function getPreferredLanguage(deviceLanguages: readonly string[]): SupportedLanguage {
+  return deviceLanguages.some((language) => language.toLowerCase().split(/[-_]/)[0] === 'ru')
+    ? 'ru'
+    : 'en'
+}
+
+const preferredLanguage = getPreferredLanguage(
+  typeof navigator === 'undefined' ? [] : [...navigator.languages, navigator.language],
+)
+
 const resources = {
   en: {
     translation: {
+      app: {
+        title: 'Where is the animal',
+      },
       common: {
         cancel: 'Cancel',
         done: 'Done',
@@ -97,6 +112,9 @@ const resources = {
   },
   ru: {
     translation: {
+      app: {
+        title: 'Где животное',
+      },
       common: {
         cancel: 'Отмена',
         done: 'Готово',
@@ -190,13 +208,21 @@ const resources = {
   },
 } as const
 
-void i18n.use(initReactI18next).init({
-  fallbackLng: 'ru',
-  interpolation: {
-    escapeValue: false,
-  },
-  lng: 'ru',
-  resources,
-})
+void i18n
+  .use(initReactI18next)
+  .init({
+    fallbackLng: 'en',
+    interpolation: {
+      escapeValue: false,
+    },
+    lng: preferredLanguage,
+    resources,
+  })
+  .then(() => {
+    if (typeof document !== 'undefined') {
+      document.documentElement.lang = preferredLanguage
+      document.title = i18n.t('app.title')
+    }
+  })
 
-export { i18n }
+export { getPreferredLanguage, i18n }

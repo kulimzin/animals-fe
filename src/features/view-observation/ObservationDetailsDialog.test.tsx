@@ -3,9 +3,13 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { afterEach, describe, expect, it, vi } from 'vitest'
-import '../../shared/i18n/i18n'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { i18n } from '../../shared/i18n/i18n'
 import { ObservationDetailsDialog } from './ObservationDetailsDialog'
+
+beforeEach(async () => {
+  await i18n.changeLanguage('ru')
+})
 
 afterEach(() => {
   cleanup()
