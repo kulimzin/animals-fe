@@ -44,6 +44,40 @@ test('filters encounters and opens a matching map marker', async ({ page }) => {
   await expect(page.getByText('Манежная площадь, Москва')).toBeVisible()
 })
 
+test('opens an encounter and changes the vote', async ({ page }) => {
+  await openMap(page)
+
+  await page.getByRole('button', { name: 'Filters' }).click()
+  await selectAnimal(page, 'Cat')
+
+  await page.getByRole('button', { name: 'Filters' }).click()
+  await page.getByRole('button', { name: 'Last hour' }).click()
+
+  const map = page.getByRole('region', { name: 'Map' })
+  await map.click({ position: { x: 640, y: 360 } })
+
+  const dialog = page.getByRole('dialog', { name: 'Cat encounter details' })
+  await expect(dialog).toBeVisible()
+
+  const confirmVote = dialog.getByRole('button', { name: 'Confirm · 12' })
+  await confirmVote.click()
+  await expect(dialog.getByRole('button', { name: 'Confirm · 13' })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  )
+
+  const rejectVote = dialog.getByRole('button', { name: 'Cannot confirm · 1' })
+  await rejectVote.click()
+  await expect(dialog.getByRole('button', { name: 'Confirm · 12' })).toHaveAttribute(
+    'aria-pressed',
+    'false',
+  )
+  await expect(dialog.getByRole('button', { name: 'Cannot confirm · 2' })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  )
+})
+
 test.describe('publishing an encounter', () => {
   test.use({
     geolocation: { latitude: 55.7558, longitude: 37.6173 },
