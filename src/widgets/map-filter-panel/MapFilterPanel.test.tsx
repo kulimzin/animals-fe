@@ -2,8 +2,8 @@
 
 import { cleanup, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { afterEach, describe, expect, it, vi } from 'vitest'
-import '../../shared/i18n/i18n'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { i18n } from '../../shared/i18n/i18n'
 import type { Animal } from '../../entities/animal'
 import { MapFilterPanel } from './MapFilterPanel'
 
@@ -15,6 +15,10 @@ const animals: Animal[] = [
   { id: 'hedgehog', slug: 'hedgehog', name: { ru: 'Ёж', en: 'Hedgehog' }, icon: '🦔' },
   { id: 'hare', slug: 'hare', name: { ru: 'Заяц', en: 'Hare' }, icon: '🐇' },
 ]
+
+beforeEach(async () => {
+  await i18n.changeLanguage('ru')
+})
 
 afterEach(cleanup)
 
