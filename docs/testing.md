@@ -8,6 +8,7 @@
 | `npm run format`             | Форматирование проекта с помощью Prettier        |
 | `npm run format:check`       | Проверка форматирования без изменения файлов     |
 | `npm test`                   | Unit- и component-тесты через Vitest             |
+| `npm run test:e2e`           | Сквозные тесты через Playwright                  |
 | `npm run build`              | TypeScript через tsc -b и production-сборка Vite |
 | `./node_modules/.bin/tsc -b` | Только проверка TypeScript, если сборка не нужна |
 
@@ -16,8 +17,7 @@ staged TypeScript-файлы ESLint, а pre-push запускает полный
 unit- и component-тесты.
 
 Vitest, React Testing Library, user-event и Playwright установлены. Unit- и component-тесты
-запускаются командой `npm test`. Сквозные сценарии Playwright будут добавлены вместе с
-пользовательскими потоками карты.
+запускаются командой `npm test`, сквозные сценарии — `npm run test:e2e`.
 
 ## Выбор проверок
 

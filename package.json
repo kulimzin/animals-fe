@@ -13,6 +13,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "vitest run",
+    "test:e2e": "playwright test",
     "preview": "vite preview",
     "prepare": "lefthook install",
     "storybook": "storybook dev -p 6006",
