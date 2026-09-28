@@ -11,9 +11,11 @@ const mapLibreMocks = vi.hoisted(() => ({
   attributionControlOptions: undefined as object | undefined,
   disableKeyboardRotation: vi.fn(),
   disableTouchRotation: vi.fn(),
+  getCanvas: vi.fn(() => ({ style: { cursor: '' } })),
   geolocateControlOptions: undefined as object | undefined,
   mapOptions: undefined as Record<string, unknown> | undefined,
   navigationControlOptions: undefined as object | undefined,
+  on: vi.fn(),
   remove: vi.fn(),
 }))
 
@@ -46,8 +48,9 @@ vi.mock('maplibre-gl', () => {
 
     addControl = mapLibreMocks.addControl
     getLayer = vi.fn(() => undefined)
+    getCanvas = mapLibreMocks.getCanvas
     getSource = vi.fn(() => undefined)
-    on = vi.fn()
+    on = mapLibreMocks.on
     remove = mapLibreMocks.remove
     setFilter = vi.fn()
   }
@@ -78,7 +81,35 @@ function renderMap() {
   )
 }
 
+function getMapEventHandler(eventName: string) {
+  const registration = mapLibreMocks.on.mock.calls.find(
+    ([registeredEvent, secondArgument]) =>
+      registeredEvent === eventName && typeof secondArgument === 'function',
+  )
+
+  return registration?.[1] as
+    ((event: { lngLat: { lat: number; lng: number } }) => void) | undefined
+}
+
 describe('Map controls', () => {
+  it('returns coordinates clicked in location selection mode', () => {
+    const onLocationSelect = vi.fn()
+
+    render(
+      <Map
+        isLocationSelectionEnabled
+        observations={[]}
+        selectedObservationId={null}
+        onBoundsChange={() => undefined}
+        onLocationSelect={onLocationSelect}
+        onObservationSelect={() => undefined}
+      />,
+    )
+    getMapEventHandler('click')?.({ lngLat: { lat: 55.75, lng: 37.62 } })
+
+    expect(onLocationSelect).toHaveBeenCalledWith({ latitude: 55.75, longitude: 37.62 })
+  })
+
   it('disables rotation and configures navigation controls', () => {
     renderMap()
 

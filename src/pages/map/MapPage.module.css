@@ -12,13 +12,56 @@
   left: var(--space-4);
 }
 
+.addControl {
+  position: absolute;
+  z-index: 1;
+  bottom: var(--space-4);
+  left: var(--space-4);
+}
+
+.locationSelection {
+  position: absolute;
+  z-index: 2;
+  top: var(--space-4);
+  left: 50%;
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  max-width: calc(100% - 8rem);
+  padding: var(--space-3) var(--space-4);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface);
+  box-shadow: var(--shadow-overlay);
+  color: var(--color-text-primary);
+  transform: translateX(-50%);
+}
+
 @media (max-width: 40rem) {
+  .locationSelection {
+    top: auto;
+    right: var(--space-3);
+    bottom: var(--space-3);
+    left: var(--space-3);
+    max-width: none;
+    transform: none;
+  }
+
   .filterControl > button {
     width: var(--control-height);
     padding: 0;
   }
 
   .filterControl > button > :last-child {
+    display: none;
+  }
+
+  .addControl > button {
+    width: var(--control-height);
+    padding: 0;
+  }
+
+  .addControl > button > :last-child {
     display: none;
   }
 }

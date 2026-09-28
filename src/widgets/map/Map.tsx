@@ -12,7 +12,7 @@ import 'maplibre-gl/dist/maplibre-gl.css'
 import mapLibreWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url'
 import { toObservationFeatureCollection, type ObservationMapItem } from '../../entities/observation'
 import { MAP_INITIAL_CENTER, MAP_INITIAL_ZOOM, MAP_STYLE_URL } from '../../shared/config/map'
-import type { GeoBounds } from '../../shared/lib/geo'
+import type { GeoBounds, GeoPoint } from '../../shared/lib/geo'
 import styles from './Map.module.css'
 
 setWorkerUrl(mapLibreWorkerUrl)
@@ -22,6 +22,8 @@ const CLUSTER_LAYER_ID = 'observation-clusters'
 const CLUSTER_COUNT_LAYER_ID = 'observation-cluster-count'
 const OBSERVATION_LAYER_ID = 'observation-points'
 const SELECTED_OBSERVATION_LAYER_ID = 'selected-observation-point'
+const LOCATION_SELECTION_SOURCE_ID = 'location-selection'
+const LOCATION_SELECTION_LAYER_ID = 'location-selection-point'
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null
@@ -32,10 +34,31 @@ function getFeatureProperty(properties: unknown, propertyName: string): unknown 
 }
 
 type MapProps = {
+  isLocationSelectionEnabled?: boolean
   observations: ObservationMapItem[]
+  selectedLocation?: GeoPoint | null
   selectedObservationId: string | null
   onBoundsChange: (bounds: GeoBounds) => void
+  onLocationSelect?: (location: GeoPoint) => void
   onObservationSelect: (observationId: string) => void
+}
+
+function toLocationFeatureCollection(location: GeoPoint | null) {
+  return {
+    type: 'FeatureCollection' as const,
+    features: location
+      ? [
+          {
+            type: 'Feature' as const,
+            properties: {},
+            geometry: {
+              type: 'Point' as const,
+              coordinates: [location.longitude, location.latitude],
+            },
+          },
+        ]
+      : [],
+  }
 }
 
 function getMapBounds(map: MapLibreMap): GeoBounds {
@@ -59,15 +82,21 @@ function collapseCompactAttribution(container: HTMLElement) {
 }
 
 export function Map({
+  isLocationSelectionEnabled = false,
   observations,
+  selectedLocation = null,
   selectedObservationId,
   onBoundsChange,
+  onLocationSelect,
   onObservationSelect,
 }: MapProps) {
   const { t } = useTranslation()
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<MapLibreMap>(null)
   const observationsRef = useRef(observations)
+  const isLocationSelectionEnabledRef = useRef(isLocationSelectionEnabled)
+  const onLocationSelectRef = useRef(onLocationSelect)
+  const selectedLocationRef = useRef(selectedLocation)
 
   useEffect(() => {
     const container = containerRef.current
@@ -119,6 +148,23 @@ export function Map({
         cluster: true,
         clusterMaxZoom: 14,
         clusterRadius: 50,
+      })
+
+      map.addSource(LOCATION_SELECTION_SOURCE_ID, {
+        type: 'geojson',
+        data: toLocationFeatureCollection(selectedLocationRef.current),
+      })
+
+      map.addLayer({
+        id: LOCATION_SELECTION_LAYER_ID,
+        type: 'circle',
+        source: LOCATION_SELECTION_SOURCE_ID,
+        paint: {
+          'circle-color': styles.getPropertyValue('--color-action-primary').trim(),
+          'circle-radius': 9,
+          'circle-stroke-color': styles.getPropertyValue('--color-surface').trim(),
+          'circle-stroke-width': 4,
+        },
       })
 
       map.addLayer({
@@ -176,6 +222,10 @@ export function Map({
       })
 
       map.on('click', CLUSTER_LAYER_ID, (event) => {
+        if (isLocationSelectionEnabledRef.current) {
+          return
+        }
+
         const cluster = event.features?.[0]
         const clusterId = getFeatureProperty(cluster?.properties, 'cluster_id')
         const source = map.getSource<GeoJSONSource>(OBSERVATION_SOURCE_ID)
@@ -192,6 +242,10 @@ export function Map({
       })
 
       map.on('click', OBSERVATION_LAYER_ID, (event) => {
+        if (isLocationSelectionEnabledRef.current) {
+          return
+        }
+
         const observationId = getFeatureProperty(event.features?.[0]?.properties, 'observationId')
 
         if (typeof observationId === 'string') {
@@ -200,10 +254,12 @@ export function Map({
       })
 
       const showPointerCursor = () => {
-        map.getCanvas().style.cursor = 'pointer'
+        map.getCanvas().style.cursor = isLocationSelectionEnabledRef.current
+          ? 'crosshair'
+          : 'pointer'
       }
       const hidePointerCursor = () => {
-        map.getCanvas().style.cursor = ''
+        map.getCanvas().style.cursor = isLocationSelectionEnabledRef.current ? 'crosshair' : ''
       }
 
       map.on('mouseenter', CLUSTER_LAYER_ID, showPointerCursor)
@@ -217,6 +273,14 @@ export function Map({
     map.on('moveend', () => {
       onBoundsChange(getMapBounds(map))
     })
+    map.on('click', (event) => {
+      if (isLocationSelectionEnabledRef.current) {
+        onLocationSelectRef.current?.({
+          latitude: event.lngLat.lat,
+          longitude: event.lngLat.lng,
+        })
+      }
+    })
     map.on('resize', () => {
       collapseCompactAttribution(container)
     })
@@ -228,6 +292,16 @@ export function Map({
   }, [onBoundsChange, onObservationSelect, t])
 
   useEffect(() => {
+    isLocationSelectionEnabledRef.current = isLocationSelectionEnabled
+    onLocationSelectRef.current = onLocationSelect
+
+    const map = mapRef.current
+    if (map) {
+      map.getCanvas().style.cursor = isLocationSelectionEnabled ? 'crosshair' : ''
+    }
+  }, [isLocationSelectionEnabled, onLocationSelect])
+
+  useEffect(() => {
     observationsRef.current = observations
     const source = mapRef.current?.getSource<GeoJSONSource>(OBSERVATION_SOURCE_ID)
 
@@ -235,6 +309,15 @@ export function Map({
       void source.setData(toObservationFeatureCollection(observations))
     }
   }, [observations])
+
+  useEffect(() => {
+    selectedLocationRef.current = selectedLocation
+    const source = mapRef.current?.getSource<GeoJSONSource>(LOCATION_SELECTION_SOURCE_ID)
+
+    if (source) {
+      void source.setData(toLocationFeatureCollection(selectedLocation))
+    }
+  }, [selectedLocation])
 
   useEffect(() => {
     const map = mapRef.current
