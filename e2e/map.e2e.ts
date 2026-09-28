@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
+import { MAP_STYLE_URL } from '../src/shared/config/map.js'
 
 const emptyMapStyle = {
   version: 8,
@@ -7,7 +8,7 @@ const emptyMapStyle = {
 }
 
 async function openMap(page: Page) {
-  await page.route('https://tiles.openfreemap.org/styles/positron', async (route) => {
+  await page.route(MAP_STYLE_URL, async (route) => {
     await route.fulfill({ json: emptyMapStyle })
   })
   await page.goto('/')
