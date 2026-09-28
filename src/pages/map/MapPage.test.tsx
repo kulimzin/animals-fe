@@ -34,7 +34,14 @@ vi.mock('../../widgets/map', () => ({
 }))
 
 vi.mock('../../widgets/map-filter-panel', () => ({
-  MapFilterPanel: () => <div>Содержимое фильтров</div>,
+  MapFilterPanel: ({ onAnimalIdsChange }: { onAnimalIdsChange: (animalIds: string[]) => void }) => (
+    <div>
+      <span>Содержимое фильтров</span>
+      <button onClick={() => onAnimalIdsChange(['cat'])} type="button">
+        Выбрать кошку
+      </button>
+    </div>
+  ),
 }))
 
 beforeEach(async () => {
@@ -48,6 +55,33 @@ afterEach(() => {
 })
 
 describe('MapPage encounter flow', () => {
+  it('explains how to display encounters until an animal is selected', async () => {
+    const user = userEvent.setup()
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+    })
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <MapPage />
+      </QueryClientProvider>,
+    )
+
+    expect(
+      screen.getByText('Выберите хотя бы одно животное, чтобы увидеть встречи на карте.'),
+    ).toBeTruthy()
+
+    await user.click(screen.getByRole('button', { name: 'Фильтры' }))
+
+    expect(screen.getByRole('dialog', { name: 'Фильтры' })).toBeTruthy()
+
+    await user.click(screen.getByRole('button', { name: 'Выбрать кошку' }))
+
+    expect(
+      screen.queryByText('Выберите хотя бы одно животное, чтобы увидеть встречи на карте.'),
+    ).toBeNull()
+  })
+
   it('opens the add encounter form in a dialog without unmounting the map', async () => {
     const user = userEvent.setup()
     const queryClient = new QueryClient({

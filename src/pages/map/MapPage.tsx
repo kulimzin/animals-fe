@@ -118,6 +118,11 @@ export function MapPage() {
           </div>
         </>
       ) : null}
+      {selectedAnimalIds.length === 0 && overlay.type === 'none' ? (
+        <section className={styles.filterPrompt}>
+          <p>{t('map.filtersRequired')}</p>
+        </section>
+      ) : null}
       <Dialog
         closeLabel={t('filters.close')}
         isOpen={overlay.type === 'filters'}
