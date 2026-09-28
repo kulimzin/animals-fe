@@ -35,10 +35,22 @@ export const observationDetailsResponseSchema = z.object({
   item: observationDetailsSchema.nullable(),
 })
 
+export const createObservationInputSchema = z.object({
+  animalId: z.string().min(1),
+  location: z.object({
+    latitude: z.number().min(-90).max(90),
+    longitude: z.number().min(-180).max(180),
+    label: z.string().trim().min(1),
+  }),
+  observedAt: z.iso.datetime(),
+  note: z.string().trim().nullable(),
+})
+
 export type ObservationPeriod = z.infer<typeof observationPeriodSchema>
 export type ObservationMapItem = z.infer<typeof observationMapItemSchema>
 export type ObservationDetails = z.infer<typeof observationDetailsSchema>
 export type ObservationVote = z.infer<typeof observationVoteSchema>
+export type CreateObservationInput = z.infer<typeof createObservationInputSchema>
 
 export type ObservationMapQuery = {
   animalIds: string[]

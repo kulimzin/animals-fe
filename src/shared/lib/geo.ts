@@ -4,3 +4,8 @@ export type GeoBounds = {
   east: number
   north: number
 }
+
+export type GeoPoint = {
+  latitude: number
+  longitude: number
+}
