@@ -250,11 +250,6 @@
     flex-wrap: nowrap;
   }
 
-  .values {
-    flex-wrap: nowrap;
-    overflow-x: auto;
-  }
-
   .chipWrapper {
     flex: 0 0 auto;
   }

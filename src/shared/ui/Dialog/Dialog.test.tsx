@@ -30,6 +30,27 @@ describe('Dialog', () => {
     expect(onClose).toHaveBeenCalledOnce()
   })
 
+  it('stays open when a child handles Escape', () => {
+    const onClose = vi.fn()
+    render(
+      <Dialog closeLabel="Закрыть окно" isOpen onClose={onClose} title="Выберите животных">
+        <input
+          aria-label="Поиск"
+          onKeyDown={(event) => {
+            if (event.key === 'Escape') {
+              event.preventDefault()
+            }
+          }}
+        />
+      </Dialog>,
+    )
+
+    fireEvent.keyDown(screen.getByRole('textbox', { name: 'Поиск' }), { key: 'Escape' })
+
+    expect(onClose).not.toHaveBeenCalled()
+    expect(screen.getByRole('dialog')).toBeTruthy()
+  })
+
   it('closes when the backdrop is clicked', () => {
     const onClose = renderDialog()
     const backdrop = screen.getByRole('dialog').parentElement
@@ -58,6 +79,7 @@ describe('Dialog', () => {
         isOpen
         maxHeight="30rem"
         maxWidth="27.5rem"
+        minHeight="24rem"
         onClose={() => undefined}
         title="Выберите животных"
       >
@@ -69,6 +91,7 @@ describe('Dialog', () => {
 
     expect(dialog.style.maxHeight).toBe('30rem')
     expect(dialog.style.maxWidth).toBe('27.5rem')
+    expect(dialog.style.minHeight).toBe('24rem')
   })
 
   it('uses aria label when it has no title', () => {

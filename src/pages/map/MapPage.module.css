@@ -4,3 +4,21 @@
   height: 100svh;
   overflow: hidden;
 }
+
+.filterControl {
+  position: absolute;
+  z-index: 1;
+  top: var(--space-4);
+  left: var(--space-4);
+}
+
+@media (max-width: 40rem) {
+  .filterControl > button {
+    width: var(--control-height);
+    padding: 0;
+  }
+
+  .filterControl > button > :last-child {
+    display: none;
+  }
+}

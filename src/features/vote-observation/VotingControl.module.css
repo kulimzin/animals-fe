@@ -1,4 +1,5 @@
 .root {
+  container-type: inline-size;
   display: grid;
   gap: var(--space-3);
 }
@@ -34,7 +35,7 @@
   line-height: var(--line-height-caption);
 }
 
-@media (max-width: 24rem) {
+@container (max-width: 24rem) {
   .actions {
     grid-template-columns: 1fr;
   }

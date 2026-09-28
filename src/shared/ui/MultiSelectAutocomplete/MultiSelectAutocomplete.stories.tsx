@@ -35,11 +35,17 @@ const virtualizedOptions: MultiSelectAutocompleteOption[] = Array.from(
   }),
 )
 
-function MultiSelectAutocompleteStory(args: MultiSelectAutocompleteProps) {
+function MultiSelectAutocompleteStory({
+  args,
+  width = 'min(36rem, calc(100vw - 2rem))',
+}: {
+  args: MultiSelectAutocompleteProps
+  width?: string
+}) {
   const [value, setValue] = useState(args.value)
 
   return (
-    <div style={{ width: 'min(36rem, calc(100vw - 2rem))' }}>
+    <div style={{ width }}>
       <MultiSelectAutocomplete
         {...args}
         onChange={(nextValue) => {
@@ -81,7 +87,7 @@ const meta = {
     suggestionsLabel: 'Все варианты',
     value: [],
   },
-  render: (args) => <MultiSelectAutocompleteStory {...args} />,
+  render: (args) => <MultiSelectAutocompleteStory args={args} />,
 } satisfies Meta<typeof MultiSelectAutocomplete>
 
 export default meta
@@ -99,6 +105,13 @@ export const SelectionLimitReached: Story = {
   args: {
     value: ['cat', 'dog', 'fox', 'squirrel', 'hedgehog'],
   },
+}
+
+export const NarrowWithSelectedOptions: Story = {
+  args: {
+    value: ['cat', 'dog', 'fox', 'squirrel', 'hedgehog'],
+  },
+  render: (args) => <MultiSelectAutocompleteStory args={args} width="20rem" />,
 }
 
 export const VirtualizedList: Story = {

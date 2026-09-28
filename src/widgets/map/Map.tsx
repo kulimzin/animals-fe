@@ -1,5 +1,12 @@
 import { useEffect, useRef } from 'react'
-import { Map as MapLibreMap, NavigationControl, ScaleControl, setWorkerUrl } from 'maplibre-gl'
+import { useTranslation } from 'react-i18next'
+import {
+  AttributionControl,
+  GeolocateControl,
+  Map as MapLibreMap,
+  NavigationControl,
+  setWorkerUrl,
+} from 'maplibre-gl'
 import type { GeoJSONSource } from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import mapLibreWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url'
@@ -42,12 +49,22 @@ function getMapBounds(map: MapLibreMap): GeoBounds {
   }
 }
 
+function collapseCompactAttribution(container: HTMLElement) {
+  const attribution = container.querySelector<HTMLDetailsElement>(
+    '.maplibregl-ctrl-attrib.maplibregl-compact',
+  )
+
+  attribution?.classList.remove('maplibregl-compact-show')
+  attribution?.removeAttribute('open')
+}
+
 export function Map({
   observations,
   selectedObservationId,
   onBoundsChange,
   onObservationSelect,
 }: MapProps) {
+  const { t } = useTranslation()
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<MapLibreMap>(null)
   const observationsRef = useRef(observations)
@@ -60,17 +77,40 @@ export function Map({
     }
 
     const map = new MapLibreMap({
+      attributionControl: false,
       center: MAP_INITIAL_CENTER,
       container,
+      dragRotate: false,
+      locale: {
+        'AttributionControl.ToggleAttribution': t('map.controls.toggleAttribution'),
+        'GeolocateControl.FindMyLocation': t('map.controls.findMyLocation'),
+        'GeolocateControl.LocationNotAvailable': t('map.controls.locationNotAvailable'),
+        'Map.Title': t('map.controls.label'),
+        'NavigationControl.ZoomIn': t('map.controls.zoomIn'),
+        'NavigationControl.ZoomOut': t('map.controls.zoomOut'),
+      },
+      pitchWithRotate: false,
       style: MAP_STYLE_URL,
+      touchPitch: false,
       zoom: MAP_INITIAL_ZOOM,
     })
     mapRef.current = map
+    map.keyboard.disableRotation()
+    map.touchZoomRotate.disableRotation()
 
-    map.addControl(new NavigationControl(), 'top-right')
-    map.addControl(new ScaleControl({ unit: 'metric' }), 'bottom-left')
+    map.addControl(new AttributionControl({}), 'bottom-right')
+    map.addControl(new NavigationControl({ showCompass: false }), 'top-right')
+    map.addControl(
+      new GeolocateControl({
+        positionOptions: { enableHighAccuracy: true },
+        trackUserLocation: false,
+      }),
+      'top-right',
+    )
 
     map.on('load', () => {
+      collapseCompactAttribution(container)
+
       const styles = getComputedStyle(container)
 
       map.addSource(OBSERVATION_SOURCE_ID, {
@@ -177,12 +217,15 @@ export function Map({
     map.on('moveend', () => {
       onBoundsChange(getMapBounds(map))
     })
+    map.on('resize', () => {
+      collapseCompactAttribution(container)
+    })
 
     return () => {
       mapRef.current = null
       map.remove()
     }
-  }, [onBoundsChange, onObservationSelect])
+  }, [onBoundsChange, onObservationSelect, t])
 
   useEffect(() => {
     observationsRef.current = observations
