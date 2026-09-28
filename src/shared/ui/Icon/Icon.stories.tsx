@@ -5,6 +5,7 @@ import styles from './Icon.stories.module.css'
 
 const iconNames: IconName[] = [
   'plus',
+  'filter',
   'close',
   'calendar',
   'mapPin',

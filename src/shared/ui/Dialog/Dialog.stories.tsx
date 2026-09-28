@@ -50,6 +50,12 @@ export const Narrow: Story = {
   },
 }
 
+export const WithMinimumHeight: Story = {
+  args: {
+    minHeight: '30rem',
+  },
+}
+
 export const WithoutTitle: Story = {
   args: {
     ariaLabel: 'Настройки фильтров',

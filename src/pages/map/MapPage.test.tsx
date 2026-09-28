@@ -16,7 +16,7 @@ vi.mock('../../widgets/map', () => ({
 }))
 
 vi.mock('../../widgets/map-filter-panel', () => ({
-  MapFilterPanel: () => null,
+  MapFilterPanel: () => <div>Содержимое фильтров</div>,
 }))
 
 afterEach(() => {
@@ -26,6 +26,31 @@ afterEach(() => {
 })
 
 describe('MapPage encounter flow', () => {
+  it('opens filters in a dialog without unmounting the map', async () => {
+    const user = userEvent.setup()
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+    })
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <MapPage />
+      </QueryClientProvider>,
+    )
+
+    const mapMarker = screen.getByRole('button', { name: 'Точка встречи' })
+    await user.click(screen.getByRole('button', { name: 'Фильтры' }))
+
+    expect(screen.getByRole('dialog', { name: 'Фильтры' })).toBeTruthy()
+    expect(screen.getByText('Содержимое фильтров')).toBeTruthy()
+    expect(mapMarker.isConnected).toBe(true)
+
+    await user.click(screen.getByRole('button', { name: 'Закрыть фильтры' }))
+
+    expect(screen.queryByRole('dialog', { name: 'Фильтры' })).toBeNull()
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Фильтры' }))
+  })
+
   it('opens and closes encounter details without unmounting the map', async () => {
     const user = userEvent.setup()
     const queryClient = new QueryClient({

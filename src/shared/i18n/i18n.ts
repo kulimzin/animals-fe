@@ -27,6 +27,8 @@ const resources = {
       },
       filters: {
         animals: 'Animals',
+        close: 'Close filters',
+        label: 'Filters',
         removeAnimal: 'Remove {{animal}}',
         period: 'Period',
         periods: {
@@ -35,6 +37,17 @@ const resources = {
           '7d': '7 days',
           '30d': '30 days',
         },
+      },
+      map: {
+        controls: {
+          findMyLocation: 'Find my location',
+          label: 'Map',
+          locationNotAvailable: 'Location is not available',
+          toggleAttribution: 'Map sources',
+          zoomIn: 'Zoom in',
+          zoomOut: 'Zoom out',
+        },
+        filters: 'Filters',
       },
       animalSelector: {
         limitReached: 'The maximum of 5 animals is selected. Remove one to choose another.',
@@ -74,6 +87,8 @@ const resources = {
       },
       filters: {
         animals: 'Животные',
+        close: 'Закрыть фильтры',
+        label: 'Фильтры',
         removeAnimal: 'Убрать {{animal}}',
         period: 'Период',
         periods: {
@@ -82,6 +97,17 @@ const resources = {
           '7d': '7 дней',
           '30d': '30 дней',
         },
+      },
+      map: {
+        controls: {
+          findMyLocation: 'Найти моё местоположение',
+          label: 'Карта',
+          locationNotAvailable: 'Местоположение недоступно',
+          toggleAttribution: 'Источники карты',
+          zoomIn: 'Приблизить',
+          zoomOut: 'Отдалить',
+        },
+        filters: 'Фильтры',
       },
       animalSelector: {
         limitReached: 'Выбрано максимум 5 животных. Уберите одно, чтобы выбрать другое.',

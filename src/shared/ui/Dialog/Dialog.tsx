@@ -38,6 +38,7 @@ export type DialogProps = DialogAccessibleName & {
   isOpen: boolean
   maxHeight?: CSSProperties['maxHeight']
   maxWidth?: CSSProperties['maxWidth']
+  minHeight?: CSSProperties['minHeight']
   onClose: () => void
 }
 
@@ -56,6 +57,7 @@ export function Dialog({
   isOpen,
   maxHeight,
   maxWidth,
+  minHeight,
   onClose,
   title,
 }: DialogProps) {
@@ -64,7 +66,9 @@ export function Dialog({
   const hasTitle = title !== undefined
   const hasContent = children !== undefined && children !== null
   const dialogStyle: CSSProperties | undefined =
-    maxHeight === undefined && maxWidth === undefined ? undefined : { maxHeight, maxWidth }
+    maxHeight === undefined && maxWidth === undefined && minHeight === undefined
+      ? undefined
+      : { maxHeight, maxWidth, minHeight }
 
   useEffect(() => {
     if (!isOpen) {
@@ -93,6 +97,10 @@ export function Dialog({
   }, [isOpen])
 
   function handleKeyDown(event: KeyboardEvent<HTMLDivElement>) {
+    if (event.defaultPrevented) {
+      return
+    }
+
     if (event.key === 'Escape') {
       event.preventDefault()
       onClose()
