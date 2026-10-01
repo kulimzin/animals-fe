@@ -95,7 +95,9 @@ const resources = {
         },
         filters: 'Filters',
         addObservation: 'Add encounter',
-        filtersRequired: 'Choose at least one animal to see encounters on the map.',
+        closeFiltersRequired: 'Close filter reminder',
+        filtersRequired: 'Choose at least one animal and a period to see encounters on the map.',
+        filtersRequiredTitle: 'Choose filters',
       },
       animalSelector: {
         limitReached:
@@ -193,7 +195,9 @@ const resources = {
         },
         filters: 'Фильтры',
         addObservation: 'Добавить встречу',
-        filtersRequired: 'Выберите хотя бы одно животное, чтобы увидеть встречи на карте.',
+        closeFiltersRequired: 'Закрыть напоминание о фильтрах',
+        filtersRequired: 'Выберите хотя бы одно животное и период, чтобы увидеть встречи на карте',
+        filtersRequiredTitle: 'Выберите фильтры',
       },
       animalSelector: {
         limitReached: 'Выбрано максимум животных: {{maximum}}. Уберите одно, чтобы выбрать другое.',

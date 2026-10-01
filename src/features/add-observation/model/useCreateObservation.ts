@@ -10,6 +10,6 @@ export function useCreateObservation() {
 
   return useMutation({
     mutationFn: (input: CreateObservationInput) => createObservation(input),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: observationsQueryKey }),
+    onSuccess: () => queryClient.refetchQueries({ queryKey: observationsQueryKey, type: 'active' }),
   })
 }

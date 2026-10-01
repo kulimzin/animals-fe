@@ -36,6 +36,7 @@ export function MapPage() {
   const [selectedAnimalIds, setSelectedAnimalIds] = useState<string[]>([])
   const [period, setPeriod] = useState<ObservationPeriod>('24h')
   const [bounds, setBounds] = useState<GeoBounds | null>(null)
+  const [isFiltersPromptOpen, setIsFiltersPromptOpen] = useState(true)
 
   const animalsQuery = useAnimals()
   const observationQuery: ObservationMapQuery | null =
@@ -46,12 +47,10 @@ export function MapPage() {
     overlay.type === 'add-observation' && overlay.mode === 'select-location'
 
   const handleAnimalIdsChange = (nextAnimalIds: string[]) => {
-    setOverlay({ type: 'none' })
     setSelectedAnimalIds(nextAnimalIds.slice(0, 5))
   }
 
   const handlePeriodChange = (nextPeriod: ObservationPeriod) => {
-    setOverlay({ type: 'none' })
     setPeriod(nextPeriod)
   }
 
@@ -118,11 +117,15 @@ export function MapPage() {
           </div>
         </>
       ) : null}
-      {selectedAnimalIds.length === 0 && overlay.type === 'none' ? (
-        <section className={styles.filterPrompt}>
-          <p>{t('map.filtersRequired')}</p>
-        </section>
-      ) : null}
+      <Dialog
+        closeLabel={t('map.closeFiltersRequired')}
+        isOpen={selectedAnimalIds.length === 0 && overlay.type === 'none' && isFiltersPromptOpen}
+        maxWidth="28rem"
+        onClose={() => setIsFiltersPromptOpen(false)}
+        title={t('map.filtersRequiredTitle')}
+      >
+        <p>{t('map.filtersRequired')}</p>
+      </Dialog>
       <Dialog
         closeLabel={t('filters.close')}
         isOpen={overlay.type === 'filters'}
