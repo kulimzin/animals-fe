@@ -1,29 +1,29 @@
 :root {
-  --color-background: #f7f8fa;
+  --color-background: #f7faf8;
   --color-overlay: rgb(15 23 42 / 34%);
   --color-surface: #ffffff;
-  --color-surface-subtle: #f3f6fb;
-  --color-surface-selected: #edf4ff;
+  --color-surface-subtle: #f3f8f5;
+  --color-surface-selected: #ecfdf3;
   --color-surface-success: #e9f9ef;
   --color-surface-danger: #fff0f0;
 
   --color-text-primary: #1d2939;
   --color-text-secondary: #667085;
   --color-text-disabled: #98a2b3;
-  --color-text-selected: #24569c;
+  --color-text-selected: #137a39;
   --color-text-success: #137a39;
   --color-text-danger: #b42318;
 
-  --color-border: #dce2ea;
-  --color-border-focus: #1565d8;
-  --color-border-selected: #cbdcf9;
+  --color-border: #dce7df;
+  --color-border-focus: #15803d;
+  --color-border-selected: #bbf7d0;
 
-  --color-action-primary: #1565d8;
-  --color-action-primary-hover: #0f54b8;
-  --color-action-primary-active: #0d469b;
+  --color-action-primary: #15803d;
+  --color-action-primary-hover: #166534;
+  --color-action-primary-active: #14532d;
   --color-action-on-primary: #ffffff;
-  --color-action-secondary-hover: #e9eef6;
-  --color-action-secondary-active: #dce4ef;
+  --color-action-secondary-hover: #eaf3ed;
+  --color-action-secondary-active: #dce9e0;
   --color-action-success: #15803d;
   --color-action-success-hover: #166534;
   --color-action-success-active: #14532d;
@@ -69,7 +69,7 @@
   --control-height: 2.625rem;
 
   --shadow-overlay: 0 0.875rem 2.375rem rgb(30 41 59 / 16%), 0 0.125rem 0.5rem rgb(30 41 59 / 6%);
-  --focus-ring: 0 0 0 0.1875rem rgb(21 101 216 / 13%);
+  --focus-ring: 0 0 0 0.1875rem rgb(21 128 61 / 13%);
   --focus-ring-danger: 0 0 0 0.1875rem rgb(220 38 38 / 13%);
   --transition-duration-fast: 150ms;
 }
