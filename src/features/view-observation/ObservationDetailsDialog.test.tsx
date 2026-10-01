@@ -17,6 +17,32 @@ vi.mock('../../entities/animal/api/getAnimals', () => ({
     }),
 }))
 
+vi.mock('../../entities/observation/api/getObservation', () => ({
+  getObservation: (observationId: string) => {
+    if (observationId === 'missing-observation') {
+      return Promise.resolve({ item: null })
+    }
+
+    const hasNote = observationId === 'observation-1'
+    return Promise.resolve({
+      item: {
+        id: observationId,
+        animalId: 'cat',
+        location: {
+          latitude: 55.7558,
+          longitude: 37.6176,
+          label: hasNote ? 'Манежная площадь, Москва' : 'Парк Горького, Москва',
+        },
+        observedAt: '2026-09-27T00:00:00.000Z',
+        note: hasNote ? 'Рыжая кошка сидела у входа в Александровский сад.' : null,
+        votes: { confirm: hasNote ? 12 : 7, reject: hasNote ? 1 : 0 },
+        confirmationPercent: hasNote ? 92 : 100,
+        userVote: null,
+      },
+    })
+  },
+}))
+
 beforeEach(async () => {
   await i18n.changeLanguage('ru')
 })

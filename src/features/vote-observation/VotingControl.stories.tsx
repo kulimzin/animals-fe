@@ -17,6 +17,7 @@ const observation: ObservationDetails = {
   observedAt: '2026-09-27T17:08:00.000Z',
   userVote: null,
   votes: { confirm: 9, reject: 1 },
+  confirmationPercent: 90,
 }
 
 function VotingControlStory({

@@ -11,23 +11,26 @@ export const observationMapItemSchema = z.object({
     longitude: z.number().min(-180).max(180),
   }),
   observedAt: z.iso.datetime(),
+  votes: z.object({
+    confirm: z.number().int().nonnegative(),
+    reject: z.number().int().nonnegative(),
+  }),
+  confirmationPercent: z.number().int().min(0).max(100).nullable(),
 })
 
 export const observationMapResponseSchema = z.object({
   items: z.array(observationMapItemSchema),
+  truncated: z.boolean(),
+  limit: z.number().int().positive(),
 })
 
 export const observationVoteSchema = z.enum(['confirm', 'reject'])
 
 export const observationDetailsSchema = observationMapItemSchema.extend({
   location: observationMapItemSchema.shape.location.extend({
-    label: z.string().min(1),
+    label: z.string().min(1).nullable(),
   }),
   note: z.string().nullable(),
-  votes: z.object({
-    confirm: z.number().int().nonnegative(),
-    reject: z.number().int().nonnegative(),
-  }),
   userVote: observationVoteSchema.nullable(),
 })
 

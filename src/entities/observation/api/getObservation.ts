@@ -1,28 +1,23 @@
-import { observationDetailsResponseSchema } from '../model/observation'
-import { mockObservations } from './mockObservations'
+import { z } from 'zod'
+import { ApiError, apiRequest } from '../../../shared/api'
+import { observationDetailsResponseSchema, observationDetailsSchema } from '../model/observation'
 
-export function getObservation(observationId: string) {
-  const observation = mockObservations.find(({ id }) => id === observationId)
+const apiObservationDetailsResponseSchema = z.object({
+  data: observationDetailsSchema,
+})
 
-  if (!observation) {
-    return Promise.resolve(observationDetailsResponseSchema.parse({ item: null }))
+export async function getObservation(observationId: string) {
+  try {
+    const response = await apiRequest(
+      `/observations/${encodeURIComponent(observationId)}`,
+      apiObservationDetailsResponseSchema,
+    )
+
+    return observationDetailsResponseSchema.parse({ item: response.data })
+  } catch (error) {
+    if (error instanceof ApiError && error.code === 'OBSERVATION_NOT_FOUND') {
+      return observationDetailsResponseSchema.parse({ item: null })
+    }
+    throw error
   }
-
-  return Promise.resolve(
-    observationDetailsResponseSchema.parse({
-      item: {
-        id: observation.id,
-        animalId: observation.animalId,
-        location: {
-          latitude: observation.coordinates[1],
-          longitude: observation.coordinates[0],
-          label: observation.locationLabel,
-        },
-        observedAt: new Date(Date.now() - observation.ageMinutes * 60_000).toISOString(),
-        note: observation.note,
-        votes: observation.votes,
-        userVote: observation.userVote,
-      },
-    }),
-  )
 }

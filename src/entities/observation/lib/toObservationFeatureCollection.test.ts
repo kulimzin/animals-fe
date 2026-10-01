@@ -9,6 +9,8 @@ describe('toObservationFeatureCollection', () => {
         animalId: 'cat',
         location: { latitude: 55.7558, longitude: 37.6176 },
         observedAt: '2026-09-27T00:00:00.000Z',
+        votes: { confirm: 12, reject: 1 },
+        confirmationPercent: 92,
       },
     ])
 

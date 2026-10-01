@@ -17,6 +17,30 @@ vi.mock('../../entities/animal/api/getAnimals', () => ({
     }),
 }))
 
+vi.mock('../../entities/observation/api/getObservations', () => ({
+  getObservations: () => Promise.resolve({ items: [], truncated: false, limit: 2_000 }),
+}))
+
+vi.mock('../../entities/observation/api/getObservation', () => ({
+  getObservation: () =>
+    Promise.resolve({
+      item: {
+        id: 'observation-1',
+        animalId: 'cat',
+        location: {
+          latitude: 55.7558,
+          longitude: 37.6176,
+          label: 'Манежная площадь, Москва',
+        },
+        observedAt: '2026-09-27T00:00:00.000Z',
+        note: 'Рыжая кошка сидела у входа в Александровский сад.',
+        votes: { confirm: 12, reject: 1 },
+        confirmationPercent: 92,
+        userVote: null,
+      },
+    }),
+}))
+
 vi.mock('../../shared/api', () => ({
   usePublicConfig: () => ({
     data: { descriptionsEnabled: true, noteMaxLength: 200, mapResultLimit: 2_000 },

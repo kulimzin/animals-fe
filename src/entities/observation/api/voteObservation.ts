@@ -1,6 +1,11 @@
 import { observationDetailsSchema, type ObservationVote } from '../model/observation'
 import { mockObservations } from './mockObservations'
 
+function calculateConfirmationPercent(confirm: number, reject: number) {
+  const total = confirm + reject
+  return total === 0 ? null : Math.floor((confirm * 100) / total + 0.5)
+}
+
 export function voteObservation(observationId: string, vote: ObservationVote) {
   const observation = mockObservations.find(({ id }) => id === observationId)
 
@@ -29,6 +34,10 @@ export function voteObservation(observationId: string, vote: ObservationVote) {
       observedAt: new Date(Date.now() - observation.ageMinutes * 60_000).toISOString(),
       note: observation.note,
       votes: observation.votes,
+      confirmationPercent: calculateConfirmationPercent(
+        observation.votes.confirm,
+        observation.votes.reject,
+      ),
       userVote: observation.userVote,
     }),
   )
