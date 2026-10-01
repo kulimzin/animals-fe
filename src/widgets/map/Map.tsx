@@ -129,13 +129,11 @@ export function Map({
 
     map.addControl(new AttributionControl({}), 'bottom-right')
     map.addControl(new NavigationControl({ showCompass: false }), 'top-right')
-    map.addControl(
-      new GeolocateControl({
-        positionOptions: { enableHighAccuracy: true },
-        trackUserLocation: false,
-      }),
-      'top-right',
-    )
+    const geolocateControl = new GeolocateControl({
+      positionOptions: { enableHighAccuracy: true },
+      trackUserLocation: false,
+    })
+    map.addControl(geolocateControl, 'top-right')
 
     map.on('load', () => {
       collapseCompactAttribution(container)
@@ -268,6 +266,7 @@ export function Map({
       map.on('mouseleave', OBSERVATION_LAYER_ID, hidePointerCursor)
 
       onBoundsChange(getMapBounds(map))
+      geolocateControl.trigger()
     })
 
     map.on('moveend', () => {
