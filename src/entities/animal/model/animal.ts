@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
 export const animalSchema = z.object({
-  id: z.string().min(1),
+  id: z.uuid(),
   slug: z.string().min(1),
   name: z.object({
     ru: z.string().min(1),

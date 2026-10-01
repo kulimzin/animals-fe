@@ -1,13 +1,36 @@
+import { z } from 'zod'
+import { apiRequest } from '../../../shared/api'
 import { animalListResponseSchema } from '../model/animal'
 
-const mockAnimals = [
-  { id: 'cat', slug: 'cat', name: { ru: 'Кошка', en: 'Cat' }, icon: '🐈' },
-  { id: 'dog', slug: 'dog', name: { ru: 'Собака', en: 'Dog' }, icon: '🐕' },
-  { id: 'fox', slug: 'fox', name: { ru: 'Лиса', en: 'Fox' }, icon: '🦊' },
-  { id: 'squirrel', slug: 'squirrel', name: { ru: 'Белка', en: 'Squirrel' }, icon: '🐿️' },
-  { id: 'hedgehog', slug: 'hedgehog', name: { ru: 'Ёж', en: 'Hedgehog' }, icon: '🦔' },
-]
+const apiAnimalSchema = z.object({
+  id: z.uuid(),
+  slug: z.string().min(1),
+  name: z.object({
+    ru: z.string().min(1),
+    en: z.string().min(1),
+  }),
+})
 
-export function getAnimals() {
-  return Promise.resolve(animalListResponseSchema.parse({ items: mockAnimals }))
+const apiAnimalListResponseSchema = z.object({
+  data: z.array(apiAnimalSchema),
+})
+
+const animalIcons: Record<string, string> = {
+  cat: '🐈',
+  dog: '🐕',
+  fox: '🦊',
+  hare: '🐇',
+  hedgehog: '🦔',
+  squirrel: '🐿️',
+}
+
+export async function getAnimals() {
+  const response = await apiRequest('/animals', apiAnimalListResponseSchema)
+
+  return animalListResponseSchema.parse({
+    items: response.data.map((animal) => ({
+      ...animal,
+      icon: animalIcons[animal.slug] ?? '🐾',
+    })),
+  })
 }

@@ -7,6 +7,16 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { i18n } from '../../shared/i18n/i18n'
 import { ObservationDetailsDialog } from './ObservationDetailsDialog'
 
+vi.mock('../../entities/animal/api/getAnimals', () => ({
+  getAnimals: () =>
+    Promise.resolve({
+      items: [
+        { id: 'cat', slug: 'cat', name: { ru: 'Кошка', en: 'Cat' }, icon: '🐈' },
+        { id: 'dog', slug: 'dog', name: { ru: 'Собака', en: 'Dog' }, icon: '🐕' },
+      ],
+    }),
+}))
+
 beforeEach(async () => {
   await i18n.changeLanguage('ru')
 })

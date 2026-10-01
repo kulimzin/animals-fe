@@ -7,6 +7,22 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { i18n } from '../../shared/i18n/i18n'
 import { MapPage } from './MapPage'
 
+vi.mock('../../entities/animal/api/getAnimals', () => ({
+  getAnimals: () =>
+    Promise.resolve({
+      items: [
+        { id: 'cat', slug: 'cat', name: { ru: 'Кошка', en: 'Cat' }, icon: '🐈' },
+        { id: 'dog', slug: 'dog', name: { ru: 'Собака', en: 'Dog' }, icon: '🐕' },
+      ],
+    }),
+}))
+
+vi.mock('../../shared/api', () => ({
+  usePublicConfig: () => ({
+    data: { descriptionsEnabled: true, noteMaxLength: 200, mapResultLimit: 2_000 },
+  }),
+}))
+
 vi.mock('../../widgets/map', () => ({
   Map: ({
     isLocationSelectionEnabled,
