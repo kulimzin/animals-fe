@@ -7,6 +7,24 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { i18n } from '../../shared/i18n/i18n'
 import { ObservationDetailsDialog } from './ObservationDetailsDialog'
 
+vi.mock('../../entities/observation/api/voteObservation', () => ({
+  voteObservation: (observationId: string, vote: 'confirm' | 'reject') =>
+    Promise.resolve({
+      id: observationId,
+      animalId: 'cat',
+      location: {
+        latitude: 55.7558,
+        longitude: 37.6176,
+        label: 'Манежная площадь, Москва',
+      },
+      observedAt: '2026-09-27T00:00:00.000Z',
+      note: 'Рыжая кошка сидела у входа в Александровский сад.',
+      votes: { confirm: vote === 'confirm' ? 13 : 12, reject: vote === 'reject' ? 2 : 1 },
+      confirmationPercent: vote === 'confirm' ? 93 : 86,
+      userVote: vote,
+    }),
+}))
+
 vi.mock('../../entities/animal/api/getAnimals', () => ({
   getAnimals: () =>
     Promise.resolve({
