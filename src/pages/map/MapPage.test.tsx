@@ -74,11 +74,20 @@ vi.mock('../../widgets/map', () => ({
 }))
 
 vi.mock('../../widgets/map-filter-panel', () => ({
-  MapFilterPanel: ({ onAnimalIdsChange }: { onAnimalIdsChange: (animalIds: string[]) => void }) => (
+  MapFilterPanel: ({
+    onAnimalIdsChange,
+    onPeriodChange,
+  }: {
+    onAnimalIdsChange: (animalIds: string[]) => void
+    onPeriodChange: (period: '7d') => void
+  }) => (
     <div>
       <span>Содержимое фильтров</span>
       <button onClick={() => onAnimalIdsChange(['cat'])} type="button">
         Выбрать кошку
+      </button>
+      <button onClick={() => onPeriodChange('7d')} type="button">
+        Выбрать 7 дней
       </button>
     </div>
   ),
@@ -95,7 +104,7 @@ afterEach(() => {
 })
 
 describe('MapPage encounter flow', () => {
-  it('explains how to display encounters until an animal is selected', async () => {
+  it('shows a dismissible filter reminder and keeps the filters open while editing', async () => {
     const user = userEvent.setup()
     const queryClient = new QueryClient({
       defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
@@ -107,9 +116,14 @@ describe('MapPage encounter flow', () => {
       </QueryClientProvider>,
     )
 
+    expect(screen.getByRole('dialog', { name: 'Выберите фильтры' })).toBeTruthy()
     expect(
-      screen.getByText('Выберите хотя бы одно животное, чтобы увидеть встречи на карте.'),
+      screen.getByText('Выберите хотя бы одно животное и период, чтобы увидеть встречи на карте'),
     ).toBeTruthy()
+
+    await user.click(screen.getByRole('button', { name: 'Закрыть напоминание о фильтрах' }))
+
+    expect(screen.queryByRole('dialog', { name: 'Выберите фильтры' })).toBeNull()
 
     await user.click(screen.getByRole('button', { name: 'Фильтры' }))
 
@@ -117,9 +131,10 @@ describe('MapPage encounter flow', () => {
 
     await user.click(screen.getByRole('button', { name: 'Выбрать кошку' }))
 
-    expect(
-      screen.queryByText('Выберите хотя бы одно животное, чтобы увидеть встречи на карте.'),
-    ).toBeNull()
+    expect(screen.getByRole('dialog', { name: 'Фильтры' })).toBeTruthy()
+    await user.click(screen.getByRole('button', { name: 'Выбрать 7 дней' }))
+
+    expect(screen.getByRole('dialog', { name: 'Фильтры' })).toBeTruthy()
   })
 
   it('opens the add encounter form in a dialog without unmounting the map', async () => {
@@ -207,6 +222,8 @@ describe('MapPage encounter flow', () => {
         <MapPage />
       </QueryClientProvider>,
     )
+
+    await user.click(screen.getByRole('button', { name: 'Закрыть напоминание о фильтрах' }))
 
     const mapMarker = screen.getByRole('button', { name: 'Точка встречи' })
     await user.click(mapMarker)
