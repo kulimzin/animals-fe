@@ -7,12 +7,21 @@ import { i18n } from '../../shared/i18n/i18n'
 import { Map } from './Map'
 
 const mapLibreMocks = vi.hoisted(() => ({
+  addLayer: vi.fn(),
+  addSource: vi.fn(),
   addControl: vi.fn(),
   attributionControlOptions: undefined as object | undefined,
   disableKeyboardRotation: vi.fn(),
   disableTouchRotation: vi.fn(),
   getCanvas: vi.fn(() => ({ style: { cursor: '' } })),
+  getBounds: vi.fn(() => ({
+    getWest: () => 37.4,
+    getSouth: () => 55.6,
+    getEast: () => 37.85,
+    getNorth: () => 55.9,
+  })),
   geolocateControlOptions: undefined as object | undefined,
+  geolocateTrigger: vi.fn(),
   mapOptions: undefined as Record<string, unknown> | undefined,
   navigationControlOptions: undefined as object | undefined,
   on: vi.fn(),
@@ -30,6 +39,8 @@ vi.mock('maplibre-gl', () => {
     constructor(options: object) {
       mapLibreMocks.geolocateControlOptions = options
     }
+
+    trigger = mapLibreMocks.geolocateTrigger
   }
 
   class NavigationControlMock {
@@ -47,6 +58,9 @@ vi.mock('maplibre-gl', () => {
     }
 
     addControl = mapLibreMocks.addControl
+    addLayer = mapLibreMocks.addLayer
+    addSource = mapLibreMocks.addSource
+    getBounds = mapLibreMocks.getBounds
     getLayer = vi.fn(() => undefined)
     getCanvas = mapLibreMocks.getCanvas
     getSource = vi.fn(() => undefined)
@@ -95,6 +109,11 @@ function getMapEventHandler(eventName: string) {
     ((event: { lngLat: { lat: number; lng: number } }) => void) | undefined
 }
 
+function triggerMapEvent(eventName: string) {
+  const handler = getMapEventHandler(eventName)
+  handler?.({ lngLat: { lat: 55.75, lng: 37.62 } })
+}
+
 describe('Map controls', () => {
   it('returns coordinates clicked in location selection mode', () => {
     const onLocationSelect = vi.fn()
@@ -130,6 +149,16 @@ describe('Map controls', () => {
       positionOptions: { enableHighAccuracy: true },
       trackUserLocation: false,
     })
+  })
+
+  it('requests the current position when the map loads', () => {
+    renderMap()
+
+    expect(mapLibreMocks.geolocateTrigger).not.toHaveBeenCalled()
+
+    triggerMapEvent('load')
+
+    expect(mapLibreMocks.geolocateTrigger).toHaveBeenCalledOnce()
   })
 
   it('passes Russian UI labels to MapLibre', () => {
