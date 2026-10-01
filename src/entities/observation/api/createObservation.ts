@@ -22,6 +22,7 @@ export function createObservation(input: CreateObservationInput) {
     locationLabel: observationInput.location.label,
     note: observationInput.note || null,
     votes: { confirm: 0, reject: 0 },
+    confirmationPercent: null,
     userVote: null,
   }
 
@@ -39,6 +40,7 @@ export function createObservation(input: CreateObservationInput) {
       observedAt: observationInput.observedAt,
       note: observation.note,
       votes: observation.votes,
+      confirmationPercent: observation.confirmationPercent,
       userVote: observation.userVote,
     }),
   )
