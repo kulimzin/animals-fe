@@ -7,6 +7,14 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { i18n } from '../../shared/i18n/i18n'
 import { AddObservationDialog } from './AddObservationDialog'
 
+const { createObservation } = vi.hoisted(() => ({
+  createObservation: vi.fn(() =>
+    Promise.resolve({
+      id: '28ccc1db-b416-4da2-8af0-c183de6698e3',
+    }),
+  ),
+}))
+
 const { publicConfig } = vi.hoisted(
   (): {
     publicConfig: {
@@ -33,11 +41,16 @@ vi.mock('../../entities/animal/api/getAnimals', () => ({
     }),
 }))
 
+vi.mock('../../entities/observation/api/createObservation', () => ({
+  createObservation,
+}))
+
 vi.mock('../../shared/api', () => ({
   usePublicConfig: () => ({ data: publicConfig }),
 }))
 
 beforeEach(async () => {
+  createObservation.mockClear()
   publicConfig.descriptionsEnabled = true
   await i18n.changeLanguage('ru')
 })
@@ -139,7 +152,14 @@ describe('AddObservationDialog', () => {
     await user.type(screen.getByRole('textbox', { name: 'Дополнительно' }), 'Кошка у скамейки')
     await user.click(screen.getByRole('button', { name: 'Опубликовать' }))
 
-    expect(onSuccess).toHaveBeenCalledWith(expect.stringMatching(/^created-observation-/))
+    expect(createObservation).toHaveBeenCalledWith(
+      expect.objectContaining({
+        animalId: 'cat',
+        location: { latitude: 55.75, longitude: 37.62, label: 'Точка на карте' },
+        note: 'Кошка у скамейки',
+      }),
+    )
+    expect(onSuccess).toHaveBeenCalledWith('28ccc1db-b416-4da2-8af0-c183de6698e3')
   })
 
   it('applies the public description settings', () => {
