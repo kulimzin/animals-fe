@@ -7,7 +7,38 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { i18n } from '../../shared/i18n/i18n'
 import { AddObservationDialog } from './AddObservationDialog'
 
+const { publicConfig } = vi.hoisted(
+  (): {
+    publicConfig: {
+      descriptionsEnabled: boolean
+      noteMaxLength: number
+      mapResultLimit: number
+    }
+  } => ({
+    publicConfig: {
+      descriptionsEnabled: true,
+      noteMaxLength: 200,
+      mapResultLimit: 2_000,
+    },
+  }),
+)
+
+vi.mock('../../entities/animal/api/getAnimals', () => ({
+  getAnimals: () =>
+    Promise.resolve({
+      items: [
+        { id: 'cat', slug: 'cat', name: { ru: 'Кошка', en: 'Cat' }, icon: '🐈' },
+        { id: 'dog', slug: 'dog', name: { ru: 'Собака', en: 'Dog' }, icon: '🐕' },
+      ],
+    }),
+}))
+
+vi.mock('../../shared/api', () => ({
+  usePublicConfig: () => ({ data: publicConfig }),
+}))
+
 beforeEach(async () => {
+  publicConfig.descriptionsEnabled = true
   await i18n.changeLanguage('ru')
 })
 
@@ -109,5 +140,19 @@ describe('AddObservationDialog', () => {
     await user.click(screen.getByRole('button', { name: 'Опубликовать' }))
 
     expect(onSuccess).toHaveBeenCalledWith(expect.stringMatching(/^created-observation-/))
+  })
+
+  it('applies the public description settings', () => {
+    renderDialog()
+
+    expect(screen.getByRole('textbox', { name: 'Дополнительно' }).getAttribute('maxlength')).toBe(
+      '200',
+    )
+
+    cleanup()
+    publicConfig.descriptionsEnabled = false
+    renderDialog()
+
+    expect(screen.queryByRole('textbox', { name: 'Дополнительно' })).toBeNull()
   })
 })

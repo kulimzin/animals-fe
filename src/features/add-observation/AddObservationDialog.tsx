@@ -3,6 +3,7 @@ import { useForm, useWatch } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
 import { useAnimals } from '../../entities/animal'
+import { usePublicConfig } from '../../shared/api'
 import type { GeoPoint } from '../../shared/lib/geo'
 import { Button } from '../../shared/ui/Button'
 import { Dialog } from '../../shared/ui/Dialog'
@@ -54,6 +55,7 @@ export function AddObservationDialog({
 }: AddObservationDialogProps) {
   const { t } = useTranslation()
   const animalsQuery = useAnimals()
+  const publicConfigQuery = usePublicConfig()
   const createObservationMutation = useCreateObservation()
   const [locationError, setLocationError] = useState<string | null>(null)
   const [isLocating, setIsLocating] = useState(false)
@@ -132,7 +134,7 @@ export function AddObservationDialog({
       {
         animalId,
         location: { ...location.point, label: location.label },
-        note: parsedFields.data.note,
+        note: publicConfigQuery.data?.descriptionsEnabled === false ? '' : parsedFields.data.note,
         observedAt,
       },
       { onSuccess: (observation) => onSuccess(observation.id) },
@@ -252,11 +254,14 @@ export function AddObservationDialog({
             type="time"
           />
         </div>
-        <Textarea
-          {...register('note')}
-          label={t('addObservation.note')}
-          placeholder={t('addObservation.notePlaceholder')}
-        />
+        {publicConfigQuery.data?.descriptionsEnabled !== false ? (
+          <Textarea
+            {...register('note')}
+            label={t('addObservation.note')}
+            maxLength={publicConfigQuery.data?.noteMaxLength}
+            placeholder={t('addObservation.notePlaceholder')}
+          />
+        ) : null}
         {createObservationMutation.isError ? (
           <p className={styles.submitError} role="alert">
             {t('addObservation.submitError')}
