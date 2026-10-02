@@ -11,8 +11,8 @@ vi.mock('../../entities/animal/api/getAnimals', () => ({
   getAnimals: () =>
     Promise.resolve({
       items: [
-        { id: 'cat', slug: 'cat', name: { ru: 'Кошка', en: 'Cat' }, icon: '🐈' },
-        { id: 'dog', slug: 'dog', name: { ru: 'Собака', en: 'Dog' }, icon: '🐕' },
+        { id: 'cat', slug: 'cat', name: { ru: 'Кошка', en: 'Cat' } },
+        { id: 'dog', slug: 'dog', name: { ru: 'Собака', en: 'Dog' } },
       ],
     }),
 }))

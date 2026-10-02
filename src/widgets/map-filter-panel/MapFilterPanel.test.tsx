@@ -8,12 +8,12 @@ import type { Animal } from '../../entities/animal'
 import { MapFilterPanel } from './MapFilterPanel'
 
 const animals: Animal[] = [
-  { id: 'cat', slug: 'cat', name: { ru: 'Кошка', en: 'Cat' }, icon: '🐈' },
-  { id: 'dog', slug: 'dog', name: { ru: 'Собака', en: 'Dog' }, icon: '🐕' },
-  { id: 'fox', slug: 'fox', name: { ru: 'Лиса', en: 'Fox' }, icon: '🦊' },
-  { id: 'squirrel', slug: 'squirrel', name: { ru: 'Белка', en: 'Squirrel' }, icon: '🐿️' },
-  { id: 'hedgehog', slug: 'hedgehog', name: { ru: 'Ёж', en: 'Hedgehog' }, icon: '🦔' },
-  { id: 'hare', slug: 'hare', name: { ru: 'Заяц', en: 'Hare' }, icon: '🐇' },
+  { id: 'cat', slug: 'cat', name: { ru: 'Кошка', en: 'Cat' } },
+  { id: 'dog', slug: 'dog', name: { ru: 'Собака', en: 'Dog' } },
+  { id: 'fox', slug: 'fox', name: { ru: 'Лиса', en: 'Fox' } },
+  { id: 'squirrel', slug: 'squirrel', name: { ru: 'Белка', en: 'Squirrel' } },
+  { id: 'hedgehog', slug: 'hedgehog', name: { ru: 'Ёж', en: 'Hedgehog' } },
+  { id: 'hare', slug: 'hare', name: { ru: 'Заяц', en: 'Hare' } },
 ]
 
 beforeEach(async () => {

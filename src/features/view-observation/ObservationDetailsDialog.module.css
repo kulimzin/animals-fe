@@ -18,7 +18,7 @@
   place-items: center;
   border-radius: 50%;
   background-color: var(--color-surface-subtle);
-  font-size: 1.5rem;
+  color: var(--color-animal);
 }
 
 .details {
