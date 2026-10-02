@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import type { Animal } from '../../entities/animal'
+import { AnimalIcon } from '../../shared/ui/AnimalIcon'
 import {
   MultiSelectAutocomplete,
   type MultiSelectAutocompleteOption,
@@ -34,7 +35,7 @@ export function AnimalSelector({
     () =>
       animals.map((animal) => ({
         label: animal.name[language],
-        leadingContent: animal.icon,
+        leadingContent: <AnimalIcon slug={animal.slug} />,
         searchTerms: [animal.name.ru, animal.name.en, animal.slug],
         value: animal.id,
       })),

@@ -10,9 +10,11 @@ import {
 import type { GeoJSONSource } from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import mapLibreWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url'
+import type { Animal } from '../../entities/animal'
 import { toObservationFeatureCollection, type ObservationMapItem } from '../../entities/observation'
 import { MAP_INITIAL_CENTER, MAP_INITIAL_ZOOM, MAP_STYLE_URL } from '../../shared/config/map'
 import type { GeoBounds, GeoPoint } from '../../shared/lib/geo'
+import { createAnimalIconImage } from '../../shared/ui/AnimalIcon'
 import styles from './Map.module.css'
 
 setWorkerUrl(mapLibreWorkerUrl)
@@ -21,6 +23,7 @@ const OBSERVATION_SOURCE_ID = 'observations'
 const CLUSTER_LAYER_ID = 'observation-clusters'
 const CLUSTER_COUNT_LAYER_ID = 'observation-cluster-count'
 const OBSERVATION_LAYER_ID = 'observation-points'
+const OBSERVATION_ICON_LAYER_ID = 'observation-icons'
 const SELECTED_OBSERVATION_LAYER_ID = 'selected-observation-point'
 const LOCATION_SELECTION_SOURCE_ID = 'location-selection'
 const LOCATION_SELECTION_LAYER_ID = 'location-selection-point'
@@ -34,6 +37,7 @@ function getFeatureProperty(properties: unknown, propertyName: string): unknown 
 }
 
 type MapProps = {
+  animals: Animal[]
   isLocationSelectionEnabled?: boolean
   observations: ObservationMapItem[]
   selectedLocation?: GeoPoint | null
@@ -41,6 +45,50 @@ type MapProps = {
   onBoundsChange: (bounds: GeoBounds) => void
   onLocationSelect?: (location: GeoPoint) => void
   onObservationSelect: (observationId: string) => void
+}
+
+const ANIMAL_ICON_ID_PREFIX = 'animal-icon-'
+const FALLBACK_ANIMAL_ICON_ID = `${ANIMAL_ICON_ID_PREFIX}fallback`
+
+function getAnimalIconId(slug: string) {
+  return `${ANIMAL_ICON_ID_PREFIX}${slug}`
+}
+
+function toMapFeatureCollection(observations: ObservationMapItem[], animals: Animal[]) {
+  const animalSlugById = new globalThis.Map(animals.map((animal) => [animal.id, animal.slug]))
+  const collection = toObservationFeatureCollection(observations)
+
+  return {
+    ...collection,
+    features: collection.features.map((feature) => {
+      const slug = animalSlugById.get(feature.properties.animalId)
+
+      return {
+        ...feature,
+        properties: {
+          ...feature.properties,
+          animalIcon: slug ? getAnimalIconId(slug) : FALLBACK_ANIMAL_ICON_ID,
+        },
+      }
+    }),
+  }
+}
+
+function addObservationIconLayer(map: MapLibreMap) {
+  if (map.getLayer(OBSERVATION_ICON_LAYER_ID)) {
+    return
+  }
+
+  map.addLayer({
+    id: OBSERVATION_ICON_LAYER_ID,
+    type: 'symbol',
+    source: OBSERVATION_SOURCE_ID,
+    filter: ['!', ['has', 'point_count']],
+    layout: {
+      'icon-allow-overlap': true,
+      'icon-image': ['get', 'animalIcon'],
+    },
+  })
 }
 
 function toLocationFeatureCollection(location: GeoPoint | null) {
@@ -82,6 +130,7 @@ function collapseCompactAttribution(container: HTMLElement) {
 }
 
 export function Map({
+  animals,
   isLocationSelectionEnabled = false,
   observations,
   selectedLocation = null,
@@ -93,6 +142,7 @@ export function Map({
   const { t } = useTranslation()
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<MapLibreMap>(null)
+  const animalsRef = useRef(animals)
   const observationsRef = useRef(observations)
   const isLocationSelectionEnabledRef = useRef(isLocationSelectionEnabled)
   const onLocationSelectRef = useRef(onLocationSelect)
@@ -124,6 +174,20 @@ export function Map({
       zoom: MAP_INITIAL_ZOOM,
     })
     mapRef.current = map
+    map.setMissingStyleImageResolver(async (imageId) => {
+      if (!imageId.startsWith(ANIMAL_ICON_ID_PREFIX) || map.hasImage(imageId)) {
+        return
+      }
+
+      const slug =
+        imageId === FALLBACK_ANIMAL_ICON_ID ? '' : imageId.slice(ANIMAL_ICON_ID_PREFIX.length)
+      const color = getComputedStyle(container).getPropertyValue('--color-action-on-primary').trim()
+      const image = await createAnimalIconImage(slug, color)
+
+      if (mapRef.current === map && !map.hasImage(imageId)) {
+        map.addImage(imageId, image, { pixelRatio: 2 })
+      }
+    })
     map.keyboard.disableRotation()
     map.touchZoomRotate.disableRotation()
 
@@ -142,7 +206,7 @@ export function Map({
 
       map.addSource(OBSERVATION_SOURCE_ID, {
         type: 'geojson',
-        data: toObservationFeatureCollection(observationsRef.current),
+        data: toMapFeatureCollection(observationsRef.current, animalsRef.current),
         cluster: true,
         clusterMaxZoom: 14,
         clusterRadius: 50,
@@ -200,7 +264,7 @@ export function Map({
         filter: ['!', ['has', 'point_count']],
         paint: {
           'circle-color': styles.getPropertyValue('--color-animal').trim(),
-          'circle-radius': 8,
+          'circle-radius': 13,
           'circle-stroke-color': styles.getPropertyValue('--color-surface').trim(),
           'circle-stroke-width': 3,
         },
@@ -213,11 +277,13 @@ export function Map({
         filter: ['==', ['get', 'observationId'], ''],
         paint: {
           'circle-color': styles.getPropertyValue('--color-animal').trim(),
-          'circle-radius': 11,
+          'circle-radius': 16,
           'circle-stroke-color': styles.getPropertyValue('--color-text-selected').trim(),
           'circle-stroke-width': 4,
         },
       })
+
+      addObservationIconLayer(map)
 
       map.on('click', CLUSTER_LAYER_ID, (event) => {
         if (isLocationSelectionEnabledRef.current) {
@@ -305,9 +371,18 @@ export function Map({
     const source = mapRef.current?.getSource<GeoJSONSource>(OBSERVATION_SOURCE_ID)
 
     if (source) {
-      void source.setData(toObservationFeatureCollection(observations))
+      void source.setData(toMapFeatureCollection(observations, animalsRef.current))
     }
   }, [observations])
+
+  useEffect(() => {
+    animalsRef.current = animals
+    const source = mapRef.current?.getSource<GeoJSONSource>(OBSERVATION_SOURCE_ID)
+
+    if (source) {
+      void source.setData(toMapFeatureCollection(observationsRef.current, animals))
+    }
+  }, [animals])
 
   useEffect(() => {
     selectedLocationRef.current = selectedLocation

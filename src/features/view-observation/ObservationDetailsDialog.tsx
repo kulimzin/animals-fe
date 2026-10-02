@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next'
 import { useAnimals } from '../../entities/animal'
 import { useObservation } from '../../entities/observation'
 import { Button } from '../../shared/ui/Button'
+import { AnimalIcon } from '../../shared/ui/AnimalIcon'
 import { Dialog } from '../../shared/ui/Dialog'
 import { VotingControl } from '../vote-observation'
 import styles from './ObservationDetailsDialog.module.css'
@@ -65,7 +66,7 @@ export function ObservationDetailsDialog({
       <div className={styles.content}>
         <div className={styles.animal}>
           <span aria-hidden="true" className={styles.animalIcon}>
-            {animal.icon}
+            <AnimalIcon size={28} slug={animal.slug} />
           </span>
           <strong>{animal.name[language]}</strong>
         </div>

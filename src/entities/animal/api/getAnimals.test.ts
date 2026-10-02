@@ -11,7 +11,7 @@ beforeEach(() => {
 })
 
 describe('getAnimals', () => {
-  it('adapts the API response and selects icons by stable slug', async () => {
+  it('validates the API response', async () => {
     vi.mocked(apiRequest).mockResolvedValue({
       data: [
         {
@@ -33,13 +33,11 @@ describe('getAnimals', () => {
           id: '2416c275-4cd6-5c44-b4c9-d10b4d152fb2',
           slug: 'cat',
           name: { ru: 'Кошка', en: 'Cat' },
-          icon: '🐈',
         },
         {
           id: 'f3185d79-5e96-5a71-8801-84ecc40308ab',
           slug: 'agama',
           name: { ru: 'Агама', en: 'Agama' },
-          icon: '🐾',
         },
       ],
     })

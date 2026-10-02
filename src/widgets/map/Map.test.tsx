@@ -1,15 +1,22 @@
 // @vitest-environment jsdom
 
-import { cleanup, render } from '@testing-library/react'
+import { cleanup, render, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { i18n } from '../../shared/i18n/i18n'
 import { Map } from './Map'
 
+vi.mock('../../shared/ui/AnimalIcon', () => ({
+  createAnimalIconImage: vi.fn(() =>
+    Promise.resolve({ data: new Uint8ClampedArray(4), height: 1, width: 1 }),
+  ),
+}))
+
 const mapLibreMocks = vi.hoisted(() => ({
-  addLayer: vi.fn(),
-  addSource: vi.fn(),
+  addLayer: vi.fn<(layer: unknown) => void>(),
+  addSource: vi.fn<(id: string, source: unknown) => void>(),
   addControl: vi.fn(),
+  addImage: vi.fn(),
   attributionControlOptions: undefined as object | undefined,
   disableKeyboardRotation: vi.fn(),
   disableTouchRotation: vi.fn(),
@@ -20,12 +27,16 @@ const mapLibreMocks = vi.hoisted(() => ({
     getEast: () => 37.85,
     getNorth: () => 55.9,
   })),
+  hasImage: vi.fn(() => false),
   geolocateControlOptions: undefined as object | undefined,
   geolocateTrigger: vi.fn(),
   mapOptions: undefined as Record<string, unknown> | undefined,
+  missingStyleImageResolver: undefined as
+    ((imageId: string) => void | Promise<void>) | null | undefined,
   navigationControlOptions: undefined as object | undefined,
   on: vi.fn(),
   remove: vi.fn(),
+  triggerRepaint: vi.fn(),
 }))
 
 vi.mock('maplibre-gl', () => {
@@ -58,15 +69,22 @@ vi.mock('maplibre-gl', () => {
     }
 
     addControl = mapLibreMocks.addControl
+    addImage = mapLibreMocks.addImage
     addLayer = mapLibreMocks.addLayer
     addSource = mapLibreMocks.addSource
     getBounds = mapLibreMocks.getBounds
+    hasImage = mapLibreMocks.hasImage
     getLayer = vi.fn(() => undefined)
     getCanvas = mapLibreMocks.getCanvas
     getSource = vi.fn(() => undefined)
     on = mapLibreMocks.on
     remove = mapLibreMocks.remove
     setFilter = vi.fn()
+    setMissingStyleImageResolver(resolver: ((imageId: string) => void | Promise<void>) | null) {
+      mapLibreMocks.missingStyleImageResolver = resolver
+      return this
+    }
+    triggerRepaint = mapLibreMocks.triggerRepaint
   }
 
   return {
@@ -91,6 +109,7 @@ afterEach(async () => {
 function renderMap() {
   render(
     <Map
+      animals={[]}
       observations={[]}
       selectedObservationId={null}
       onBoundsChange={() => undefined}
@@ -115,11 +134,62 @@ function triggerMapEvent(eventName: string) {
 }
 
 describe('Map controls', () => {
+  it('renders animal icons above encounter points', async () => {
+    render(
+      <Map
+        animals={[{ id: 'cat-id', slug: 'cat', name: { ru: 'Кошка', en: 'Cat' } }]}
+        observations={[
+          {
+            id: 'observation-id',
+            animalId: 'cat-id',
+            location: { latitude: 55.75, longitude: 37.62 },
+            observedAt: '2026-10-02T08:00:00.000Z',
+            votes: { confirm: 1, reject: 0 },
+            confirmationPercent: 100,
+          },
+        ]}
+        selectedObservationId={null}
+        onBoundsChange={() => undefined}
+        onObservationSelect={() => undefined}
+      />,
+    )
+
+    triggerMapEvent('load')
+
+    await mapLibreMocks.missingStyleImageResolver?.('animal-icon-cat')
+    await waitFor(() => expect(mapLibreMocks.addImage).toHaveBeenCalled())
+
+    const observationSource = mapLibreMocks.addSource.mock.calls.find(
+      ([sourceId]) => sourceId === 'observations',
+    )?.[1]
+    const iconLayer = mapLibreMocks.addLayer.mock.calls
+      .map(([layer]) => layer)
+      .find(
+        (layer) =>
+          typeof layer === 'object' &&
+          layer !== null &&
+          'id' in layer &&
+          layer.id === 'observation-icons',
+      )
+
+    expect(observationSource).toMatchObject({
+      data: {
+        features: [{ properties: { animalIcon: 'animal-icon-cat' } }],
+      },
+    })
+    expect(iconLayer).toMatchObject({
+      id: 'observation-icons',
+      layout: { 'icon-image': ['get', 'animalIcon'] },
+      type: 'symbol',
+    })
+  })
+
   it('returns coordinates clicked in location selection mode', () => {
     const onLocationSelect = vi.fn()
 
     render(
       <Map
+        animals={[]}
         isLocationSelectionEnabled
         observations={[]}
         selectedObservationId={null}

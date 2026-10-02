@@ -7,7 +7,6 @@ export const animalSchema = z.object({
     ru: z.string().min(1),
     en: z.string().min(1),
   }),
-  icon: z.string().min(1),
 })
 
 export const animalListResponseSchema = z.object({

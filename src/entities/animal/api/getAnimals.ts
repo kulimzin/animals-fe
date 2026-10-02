@@ -15,22 +15,10 @@ const apiAnimalListResponseSchema = z.object({
   data: z.array(apiAnimalSchema),
 })
 
-const animalIcons: Record<string, string> = {
-  cat: '🐈',
-  dog: '🐕',
-  fox: '🦊',
-  hare: '🐇',
-  hedgehog: '🦔',
-  squirrel: '🐿️',
-}
-
 export async function getAnimals() {
   const response = await apiRequest('/animals', apiAnimalListResponseSchema)
 
   return animalListResponseSchema.parse({
-    items: response.data.map((animal) => ({
-      ...animal,
-      icon: animalIcons[animal.slug] ?? '🐾',
-    })),
+    items: response.data,
   })
 }
