@@ -80,6 +80,7 @@ export function MapPage() {
   return (
     <main className={styles.page}>
       <Map
+        animals={animalsQuery.data ?? []}
         isLocationSelectionEnabled={isSelectingLocation}
         observations={observationsQuery.data ?? []}
         selectedLocation={overlay.type === 'add-observation' ? overlay.location?.point : null}
