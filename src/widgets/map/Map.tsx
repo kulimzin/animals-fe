@@ -22,13 +22,10 @@ const OBSERVATION_SOURCE_ID = 'observations'
 const CLUSTER_LAYER_ID = 'observation-clusters'
 const CLUSTER_COUNT_LAYER_ID = 'observation-cluster-count'
 const OBSERVATION_LAYER_ID = 'observation-points'
-const OBSERVATION_LABEL_LAYER_ID = 'observation-labels'
-const SELECTED_OBSERVATION_LABEL_LAYER_ID = 'selected-observation-label'
+const OBSERVATION_INITIAL_LAYER_ID = 'observation-initials'
 const SELECTED_OBSERVATION_LAYER_ID = 'selected-observation-point'
 const LOCATION_SELECTION_SOURCE_ID = 'location-selection'
 const LOCATION_SELECTION_LAYER_ID = 'location-selection-point'
-const OBSERVATION_LABEL_BACKGROUND_ID = 'observation-label-background'
-const SELECTED_OBSERVATION_LABEL_BACKGROUND_ID = 'selected-observation-label-background'
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null
@@ -51,61 +48,6 @@ type MapProps = {
 
 type Language = 'en' | 'ru'
 
-function parseHexColor(color: string) {
-  const value = color.trim().replace('#', '')
-
-  if (!/^[\da-f]{6}$/i.test(value)) {
-    return [0, 0, 0, 255] as const
-  }
-
-  return [
-    Number.parseInt(value.slice(0, 2), 16),
-    Number.parseInt(value.slice(2, 4), 16),
-    Number.parseInt(value.slice(4, 6), 16),
-    255,
-  ] as const
-}
-
-function createLabelBackgroundImage(backgroundColor: string, borderColor: string) {
-  const width = 40
-  const height = 28
-  const borderWidth = 2
-  const radius = height / 2
-  const background = parseHexColor(backgroundColor)
-  const border = parseHexColor(borderColor)
-  const imageData = new Uint8Array(width * height * 4)
-
-  for (let y = 0; y < height; y += 1) {
-    for (let x = 0; x < width; x += 1) {
-      const nearestX = Math.max(radius, Math.min(width - radius, x + 0.5))
-      const nearestY = height / 2
-      const distance = Math.hypot(x + 0.5 - nearestX, y + 0.5 - nearestY)
-      const color =
-        distance <= radius - borderWidth ? background : distance <= radius ? border : null
-
-      if (color) {
-        imageData.set(color, (y * width + x) * 4)
-      }
-    }
-  }
-
-  return { data: imageData, height, width }
-}
-
-function addLabelBackground(
-  map: MapLibreMap,
-  imageId: string,
-  backgroundColor: string,
-  borderColor: string,
-) {
-  map.addImage(imageId, createLabelBackgroundImage(backgroundColor, borderColor), {
-    content: [10, 5, 30, 23],
-    pixelRatio: 2,
-    stretchX: [[14, 26]],
-    stretchY: [[12, 16]],
-  })
-}
-
 function toMapFeatureCollection(
   observations: ObservationMapItem[],
   animals: Animal[],
@@ -120,44 +62,17 @@ function toMapFeatureCollection(
   return {
     ...collection,
     features: collection.features.map((feature) => {
+      const animalName = animalNameById.get(feature.properties.animalId) ?? fallbackAnimalName
+
       return {
         ...feature,
         properties: {
           ...feature.properties,
-          animalName: animalNameById.get(feature.properties.animalId) ?? fallbackAnimalName,
+          animalInitial: Array.from(animalName.trim())[0]?.toLocaleUpperCase(language) ?? '?',
         },
       }
     }),
   }
-}
-
-function addObservationLabelLayer(map: MapLibreMap, isSelected: boolean, textColor: string) {
-  map.addLayer({
-    id: isSelected ? SELECTED_OBSERVATION_LABEL_LAYER_ID : OBSERVATION_LABEL_LAYER_ID,
-    type: 'symbol',
-    source: OBSERVATION_SOURCE_ID,
-    filter: [
-      'all',
-      ['!', ['has', 'point_count']],
-      [isSelected ? '==' : '!=', ['get', 'observationId'], ''],
-    ],
-    layout: {
-      'icon-image': isSelected
-        ? SELECTED_OBSERVATION_LABEL_BACKGROUND_ID
-        : OBSERVATION_LABEL_BACKGROUND_ID,
-      'icon-allow-overlap': true,
-      'icon-text-fit': 'both',
-      'icon-text-fit-padding': [5, 9, 5, 9],
-      'text-allow-overlap': true,
-      'text-field': ['get', 'animalName'],
-      'text-font': ['Noto Sans Regular'],
-      'text-offset': [0, -1.7],
-      'text-size': 13,
-    },
-    paint: {
-      'text-color': textColor,
-    },
-  })
 }
 
 function toLocationFeatureCollection(location: GeoPoint | null) {
@@ -262,18 +177,6 @@ export function Map({
       collapseCompactAttribution(container)
 
       const styles = getComputedStyle(container)
-      addLabelBackground(
-        map,
-        OBSERVATION_LABEL_BACKGROUND_ID,
-        styles.getPropertyValue('--color-surface').trim(),
-        styles.getPropertyValue('--color-action-success').trim(),
-      )
-      addLabelBackground(
-        map,
-        SELECTED_OBSERVATION_LABEL_BACKGROUND_ID,
-        styles.getPropertyValue('--color-action-primary').trim(),
-        styles.getPropertyValue('--color-surface').trim(),
-      )
 
       map.addSource(OBSERVATION_SOURCE_ID, {
         type: 'geojson',
@@ -340,7 +243,7 @@ export function Map({
         filter: ['!', ['has', 'point_count']],
         paint: {
           'circle-color': styles.getPropertyValue('--color-action-success').trim(),
-          'circle-radius': 7,
+          'circle-radius': 11,
           'circle-stroke-color': styles.getPropertyValue('--color-surface').trim(),
           'circle-stroke-width': 2,
         },
@@ -353,18 +256,27 @@ export function Map({
         filter: ['==', ['get', 'observationId'], ''],
         paint: {
           'circle-color': styles.getPropertyValue('--color-action-primary').trim(),
-          'circle-radius': 8,
+          'circle-radius': 12,
           'circle-stroke-color': styles.getPropertyValue('--color-surface').trim(),
           'circle-stroke-width': 3,
         },
       })
 
-      addObservationLabelLayer(map, false, styles.getPropertyValue('--color-text-selected').trim())
-      addObservationLabelLayer(
-        map,
-        true,
-        styles.getPropertyValue('--color-action-on-primary').trim(),
-      )
+      map.addLayer({
+        id: OBSERVATION_INITIAL_LAYER_ID,
+        type: 'symbol',
+        source: OBSERVATION_SOURCE_ID,
+        filter: ['!', ['has', 'point_count']],
+        layout: {
+          'text-allow-overlap': true,
+          'text-field': ['get', 'animalInitial'],
+          'text-font': ['Noto Sans Regular'],
+          'text-size': 12,
+        },
+        paint: {
+          'text-color': styles.getPropertyValue('--color-action-on-success').trim(),
+        },
+      })
 
       map.on('click', CLUSTER_LAYER_ID, (event) => {
         if (isLocationSelectionEnabledRef.current) {
@@ -399,8 +311,7 @@ export function Map({
       }
 
       map.on('click', OBSERVATION_LAYER_ID, handleObservationClick)
-      map.on('click', OBSERVATION_LABEL_LAYER_ID, handleObservationClick)
-      map.on('click', SELECTED_OBSERVATION_LABEL_LAYER_ID, handleObservationClick)
+      map.on('click', OBSERVATION_INITIAL_LAYER_ID, handleObservationClick)
 
       const showPointerCursor = () => {
         map.getCanvas().style.cursor = isLocationSelectionEnabledRef.current
@@ -415,10 +326,8 @@ export function Map({
       map.on('mouseleave', CLUSTER_LAYER_ID, hidePointerCursor)
       map.on('mouseenter', OBSERVATION_LAYER_ID, showPointerCursor)
       map.on('mouseleave', OBSERVATION_LAYER_ID, hidePointerCursor)
-      map.on('mouseenter', OBSERVATION_LABEL_LAYER_ID, showPointerCursor)
-      map.on('mouseleave', OBSERVATION_LABEL_LAYER_ID, hidePointerCursor)
-      map.on('mouseenter', SELECTED_OBSERVATION_LABEL_LAYER_ID, showPointerCursor)
-      map.on('mouseleave', SELECTED_OBSERVATION_LABEL_LAYER_ID, hidePointerCursor)
+      map.on('mouseenter', OBSERVATION_INITIAL_LAYER_ID, showPointerCursor)
+      map.on('mouseleave', OBSERVATION_INITIAL_LAYER_ID, hidePointerCursor)
 
       onBoundsChange(getMapBounds(map))
       geolocateControl.trigger()
@@ -524,16 +433,6 @@ export function Map({
       '==',
       ['get', 'observationId'],
       selectedObservationId ?? '',
-    ])
-    map.setFilter(OBSERVATION_LABEL_LAYER_ID, [
-      'all',
-      ['!', ['has', 'point_count']],
-      ['!=', ['get', 'observationId'], selectedObservationId ?? ''],
-    ])
-    map.setFilter(SELECTED_OBSERVATION_LABEL_LAYER_ID, [
-      'all',
-      ['!', ['has', 'point_count']],
-      ['==', ['get', 'observationId'], selectedObservationId ?? ''],
     ])
   }, [selectedObservationId])
 
