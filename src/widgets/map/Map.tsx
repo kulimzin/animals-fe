@@ -14,7 +14,6 @@ import type { Animal } from '../../entities/animal'
 import { toObservationFeatureCollection, type ObservationMapItem } from '../../entities/observation'
 import { MAP_INITIAL_CENTER, MAP_INITIAL_ZOOM, MAP_STYLE_URL } from '../../shared/config/map'
 import type { GeoBounds, GeoPoint } from '../../shared/lib/geo'
-import { createAnimalIconImage } from '../../shared/ui/AnimalIcon'
 import styles from './Map.module.css'
 
 setWorkerUrl(mapLibreWorkerUrl)
@@ -23,10 +22,13 @@ const OBSERVATION_SOURCE_ID = 'observations'
 const CLUSTER_LAYER_ID = 'observation-clusters'
 const CLUSTER_COUNT_LAYER_ID = 'observation-cluster-count'
 const OBSERVATION_LAYER_ID = 'observation-points'
-const OBSERVATION_ICON_LAYER_ID = 'observation-icons'
+const OBSERVATION_LABEL_LAYER_ID = 'observation-labels'
+const SELECTED_OBSERVATION_LABEL_LAYER_ID = 'selected-observation-label'
 const SELECTED_OBSERVATION_LAYER_ID = 'selected-observation-point'
 const LOCATION_SELECTION_SOURCE_ID = 'location-selection'
 const LOCATION_SELECTION_LAYER_ID = 'location-selection-point'
+const OBSERVATION_LABEL_BACKGROUND_ID = 'observation-label-background'
+const SELECTED_OBSERVATION_LABEL_BACKGROUND_ID = 'selected-observation-label-background'
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null
@@ -47,46 +49,113 @@ type MapProps = {
   onObservationSelect: (observationId: string) => void
 }
 
-const ANIMAL_ICON_ID_PREFIX = 'animal-icon-'
-const FALLBACK_ANIMAL_ICON_ID = `${ANIMAL_ICON_ID_PREFIX}fallback`
+type Language = 'en' | 'ru'
 
-function getAnimalIconId(slug: string) {
-  return `${ANIMAL_ICON_ID_PREFIX}${slug}`
+function parseHexColor(color: string) {
+  const value = color.trim().replace('#', '')
+
+  if (!/^[\da-f]{6}$/i.test(value)) {
+    return [0, 0, 0, 255] as const
+  }
+
+  return [
+    Number.parseInt(value.slice(0, 2), 16),
+    Number.parseInt(value.slice(2, 4), 16),
+    Number.parseInt(value.slice(4, 6), 16),
+    255,
+  ] as const
 }
 
-function toMapFeatureCollection(observations: ObservationMapItem[], animals: Animal[]) {
-  const animalSlugById = new globalThis.Map(animals.map((animal) => [animal.id, animal.slug]))
+function createLabelBackgroundImage(backgroundColor: string, borderColor: string) {
+  const width = 40
+  const height = 28
+  const borderWidth = 2
+  const radius = height / 2
+  const background = parseHexColor(backgroundColor)
+  const border = parseHexColor(borderColor)
+  const imageData = new Uint8Array(width * height * 4)
+
+  for (let y = 0; y < height; y += 1) {
+    for (let x = 0; x < width; x += 1) {
+      const nearestX = Math.max(radius, Math.min(width - radius, x + 0.5))
+      const nearestY = height / 2
+      const distance = Math.hypot(x + 0.5 - nearestX, y + 0.5 - nearestY)
+      const color =
+        distance <= radius - borderWidth ? background : distance <= radius ? border : null
+
+      if (color) {
+        imageData.set(color, (y * width + x) * 4)
+      }
+    }
+  }
+
+  return { data: imageData, height, width }
+}
+
+function addLabelBackground(
+  map: MapLibreMap,
+  imageId: string,
+  backgroundColor: string,
+  borderColor: string,
+) {
+  map.addImage(imageId, createLabelBackgroundImage(backgroundColor, borderColor), {
+    content: [10, 5, 30, 23],
+    pixelRatio: 2,
+    stretchX: [[14, 26]],
+    stretchY: [[12, 16]],
+  })
+}
+
+function toMapFeatureCollection(
+  observations: ObservationMapItem[],
+  animals: Animal[],
+  language: Language,
+  fallbackAnimalName: string,
+) {
+  const animalNameById = new globalThis.Map(
+    animals.map((animal) => [animal.id, animal.name[language]]),
+  )
   const collection = toObservationFeatureCollection(observations)
 
   return {
     ...collection,
     features: collection.features.map((feature) => {
-      const slug = animalSlugById.get(feature.properties.animalId)
-
       return {
         ...feature,
         properties: {
           ...feature.properties,
-          animalIcon: slug ? getAnimalIconId(slug) : FALLBACK_ANIMAL_ICON_ID,
+          animalName: animalNameById.get(feature.properties.animalId) ?? fallbackAnimalName,
         },
       }
     }),
   }
 }
 
-function addObservationIconLayer(map: MapLibreMap) {
-  if (map.getLayer(OBSERVATION_ICON_LAYER_ID)) {
-    return
-  }
-
+function addObservationLabelLayer(map: MapLibreMap, isSelected: boolean, textColor: string) {
   map.addLayer({
-    id: OBSERVATION_ICON_LAYER_ID,
+    id: isSelected ? SELECTED_OBSERVATION_LABEL_LAYER_ID : OBSERVATION_LABEL_LAYER_ID,
     type: 'symbol',
     source: OBSERVATION_SOURCE_ID,
-    filter: ['!', ['has', 'point_count']],
+    filter: [
+      'all',
+      ['!', ['has', 'point_count']],
+      [isSelected ? '==' : '!=', ['get', 'observationId'], ''],
+    ],
     layout: {
+      'icon-image': isSelected
+        ? SELECTED_OBSERVATION_LABEL_BACKGROUND_ID
+        : OBSERVATION_LABEL_BACKGROUND_ID,
       'icon-allow-overlap': true,
-      'icon-image': ['get', 'animalIcon'],
+      'icon-text-fit': 'both',
+      'icon-text-fit-padding': [5, 9, 5, 9],
+      'text-allow-overlap': true,
+      'text-field': ['get', 'animalName'],
+      'text-font': ['Noto Sans Regular'],
+      'text-offset': [0, -1.7],
+      'text-size': 13,
+    },
+    paint: {
+      'text-color': textColor,
     },
   })
 }
@@ -139,10 +208,14 @@ export function Map({
   onLocationSelect,
   onObservationSelect,
 }: MapProps) {
-  const { t } = useTranslation()
+  const { i18n, t } = useTranslation()
+  const language: Language = i18n.resolvedLanguage === 'en' ? 'en' : 'ru'
+  const fallbackAnimalName = t('observation.label')
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<MapLibreMap>(null)
   const animalsRef = useRef(animals)
+  const languageRef = useRef(language)
+  const fallbackAnimalNameRef = useRef(fallbackAnimalName)
   const observationsRef = useRef(observations)
   const isLocationSelectionEnabledRef = useRef(isLocationSelectionEnabled)
   const onLocationSelectRef = useRef(onLocationSelect)
@@ -174,20 +247,6 @@ export function Map({
       zoom: MAP_INITIAL_ZOOM,
     })
     mapRef.current = map
-    map.setMissingStyleImageResolver(async (imageId) => {
-      if (!imageId.startsWith(ANIMAL_ICON_ID_PREFIX) || map.hasImage(imageId)) {
-        return
-      }
-
-      const slug =
-        imageId === FALLBACK_ANIMAL_ICON_ID ? '' : imageId.slice(ANIMAL_ICON_ID_PREFIX.length)
-      const color = getComputedStyle(container).getPropertyValue('--color-action-on-primary').trim()
-      const image = await createAnimalIconImage(slug, color)
-
-      if (mapRef.current === map && !map.hasImage(imageId)) {
-        map.addImage(imageId, image, { pixelRatio: 2 })
-      }
-    })
     map.keyboard.disableRotation()
     map.touchZoomRotate.disableRotation()
 
@@ -203,10 +262,27 @@ export function Map({
       collapseCompactAttribution(container)
 
       const styles = getComputedStyle(container)
+      addLabelBackground(
+        map,
+        OBSERVATION_LABEL_BACKGROUND_ID,
+        styles.getPropertyValue('--color-surface').trim(),
+        styles.getPropertyValue('--color-action-success').trim(),
+      )
+      addLabelBackground(
+        map,
+        SELECTED_OBSERVATION_LABEL_BACKGROUND_ID,
+        styles.getPropertyValue('--color-action-primary').trim(),
+        styles.getPropertyValue('--color-surface').trim(),
+      )
 
       map.addSource(OBSERVATION_SOURCE_ID, {
         type: 'geojson',
-        data: toMapFeatureCollection(observationsRef.current, animalsRef.current),
+        data: toMapFeatureCollection(
+          observationsRef.current,
+          animalsRef.current,
+          languageRef.current,
+          fallbackAnimalNameRef.current,
+        ),
         cluster: true,
         clusterMaxZoom: 14,
         clusterRadius: 50,
@@ -263,10 +339,10 @@ export function Map({
         source: OBSERVATION_SOURCE_ID,
         filter: ['!', ['has', 'point_count']],
         paint: {
-          'circle-color': styles.getPropertyValue('--color-animal').trim(),
-          'circle-radius': 13,
+          'circle-color': styles.getPropertyValue('--color-action-success').trim(),
+          'circle-radius': 7,
           'circle-stroke-color': styles.getPropertyValue('--color-surface').trim(),
-          'circle-stroke-width': 3,
+          'circle-stroke-width': 2,
         },
       })
 
@@ -276,14 +352,19 @@ export function Map({
         source: OBSERVATION_SOURCE_ID,
         filter: ['==', ['get', 'observationId'], ''],
         paint: {
-          'circle-color': styles.getPropertyValue('--color-animal').trim(),
-          'circle-radius': 16,
-          'circle-stroke-color': styles.getPropertyValue('--color-text-selected').trim(),
-          'circle-stroke-width': 4,
+          'circle-color': styles.getPropertyValue('--color-action-primary').trim(),
+          'circle-radius': 8,
+          'circle-stroke-color': styles.getPropertyValue('--color-surface').trim(),
+          'circle-stroke-width': 3,
         },
       })
 
-      addObservationIconLayer(map)
+      addObservationLabelLayer(map, false, styles.getPropertyValue('--color-text-selected').trim())
+      addObservationLabelLayer(
+        map,
+        true,
+        styles.getPropertyValue('--color-action-on-primary').trim(),
+      )
 
       map.on('click', CLUSTER_LAYER_ID, (event) => {
         if (isLocationSelectionEnabledRef.current) {
@@ -305,7 +386,7 @@ export function Map({
         })
       })
 
-      map.on('click', OBSERVATION_LAYER_ID, (event) => {
+      const handleObservationClick = (event: { features?: { properties?: unknown }[] }) => {
         if (isLocationSelectionEnabledRef.current) {
           return
         }
@@ -315,7 +396,11 @@ export function Map({
         if (typeof observationId === 'string') {
           onObservationSelect(observationId)
         }
-      })
+      }
+
+      map.on('click', OBSERVATION_LAYER_ID, handleObservationClick)
+      map.on('click', OBSERVATION_LABEL_LAYER_ID, handleObservationClick)
+      map.on('click', SELECTED_OBSERVATION_LABEL_LAYER_ID, handleObservationClick)
 
       const showPointerCursor = () => {
         map.getCanvas().style.cursor = isLocationSelectionEnabledRef.current
@@ -330,6 +415,10 @@ export function Map({
       map.on('mouseleave', CLUSTER_LAYER_ID, hidePointerCursor)
       map.on('mouseenter', OBSERVATION_LAYER_ID, showPointerCursor)
       map.on('mouseleave', OBSERVATION_LAYER_ID, hidePointerCursor)
+      map.on('mouseenter', OBSERVATION_LABEL_LAYER_ID, showPointerCursor)
+      map.on('mouseleave', OBSERVATION_LABEL_LAYER_ID, hidePointerCursor)
+      map.on('mouseenter', SELECTED_OBSERVATION_LABEL_LAYER_ID, showPointerCursor)
+      map.on('mouseleave', SELECTED_OBSERVATION_LABEL_LAYER_ID, hidePointerCursor)
 
       onBoundsChange(getMapBounds(map))
       geolocateControl.trigger()
@@ -371,7 +460,14 @@ export function Map({
     const source = mapRef.current?.getSource<GeoJSONSource>(OBSERVATION_SOURCE_ID)
 
     if (source) {
-      void source.setData(toMapFeatureCollection(observations, animalsRef.current))
+      void source.setData(
+        toMapFeatureCollection(
+          observations,
+          animalsRef.current,
+          languageRef.current,
+          fallbackAnimalNameRef.current,
+        ),
+      )
     }
   }, [observations])
 
@@ -380,9 +476,33 @@ export function Map({
     const source = mapRef.current?.getSource<GeoJSONSource>(OBSERVATION_SOURCE_ID)
 
     if (source) {
-      void source.setData(toMapFeatureCollection(observationsRef.current, animals))
+      void source.setData(
+        toMapFeatureCollection(
+          observationsRef.current,
+          animals,
+          languageRef.current,
+          fallbackAnimalNameRef.current,
+        ),
+      )
     }
   }, [animals])
+
+  useEffect(() => {
+    languageRef.current = language
+    fallbackAnimalNameRef.current = fallbackAnimalName
+    const source = mapRef.current?.getSource<GeoJSONSource>(OBSERVATION_SOURCE_ID)
+
+    if (source) {
+      void source.setData(
+        toMapFeatureCollection(
+          observationsRef.current,
+          animalsRef.current,
+          language,
+          fallbackAnimalName,
+        ),
+      )
+    }
+  }, [fallbackAnimalName, language])
 
   useEffect(() => {
     selectedLocationRef.current = selectedLocation
@@ -404,6 +524,16 @@ export function Map({
       '==',
       ['get', 'observationId'],
       selectedObservationId ?? '',
+    ])
+    map.setFilter(OBSERVATION_LABEL_LAYER_ID, [
+      'all',
+      ['!', ['has', 'point_count']],
+      ['!=', ['get', 'observationId'], selectedObservationId ?? ''],
+    ])
+    map.setFilter(SELECTED_OBSERVATION_LABEL_LAYER_ID, [
+      'all',
+      ['!', ['has', 'point_count']],
+      ['==', ['get', 'observationId'], selectedObservationId ?? ''],
     ])
   }, [selectedObservationId])
 
