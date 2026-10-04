@@ -28,7 +28,7 @@ describe('createObservation', () => {
       confirmationPercent: null,
       userVote: null,
     }
-    vi.mocked(apiRequest).mockResolvedValue({ data: observation })
+    vi.mocked(apiRequest).mockResolvedValue({ item: observation })
 
     await expect(createObservation(input)).resolves.toEqual(observation)
 
@@ -41,9 +41,8 @@ describe('createObservation', () => {
     expect(init?.body).toEqual(expect.any(String))
     expect(JSON.parse(typeof init?.body === 'string' ? init.body : '')).toEqual({
       animalId: input.animalId,
-      location: { longitude: 37.6176, latitude: 55.7558 },
+      location: { longitude: 37.6176, latitude: 55.7558, label: 'Парк' },
       observedAt: input.observedAt,
-      locationLabel: 'Парк',
       note: 'У фонтана',
     })
   })

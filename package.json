@@ -9,6 +9,9 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "api:types": "openapi-ts --file openapi-ts.config.mjs",
+    "api:generate": "npm --prefix ../animals-be run openapi:export && npm run api:types",
+    "api:check": "npm --prefix ../animals-be run openapi:check && node scripts/check-api-types.mjs",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
@@ -31,7 +34,9 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@hey-api/openapi-ts": "^0.97.3",
     "@playwright/test": "^1.63.0",
+    "@storybook/react-vite": "^10.6.0",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.3",
     "@testing-library/user-event": "^14.6.7",
@@ -52,5 +57,8 @@
     "vitest": "^5.0.2",
     "storybook": "^10.6.0",
     "@storybook/react-vite": "^10.6.0"
+  },
+  "overrides": {
+    "js-yaml": "4.3.2"
   }
 }

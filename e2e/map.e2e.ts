@@ -52,7 +52,7 @@ test('filters encounters and opens a matching map marker', async ({ page }) => {
   await page.route(`**/api/v1/observations/${observationId}`, async (route) => {
     await route.fulfill({
       json: {
-        data: {
+        item: {
           id: observationId,
           animalId: selectedAnimalId,
           location: {

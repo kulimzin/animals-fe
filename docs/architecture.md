@@ -90,7 +90,8 @@ Observation[] → GeoJSON FeatureCollection → MapLibre Source → Layers/clust
 
 - Сетевую работу отделять от UI; не писать произвольные fetch в presentation-компонентах.
 - Общий HTTP-клиент и обработку сетевых ошибок размещать в shared/api; доменные запросы — в entities; сетевую логику действий можно размещать в features.
-- При наличии OpenAPI рассмотреть генерацию типов и клиента. Не создавать frontend-типы, противоречащие backend contract.
+- OpenAPI backend-приложения — источник истины для транспортного контракта. Frontend-типы генерируются из `animals-be/openapi.json`; не дублировать вручную transport DTO.
+- Zod-схемы frontend сохраняются для проверки внешних ответов в runtime и должны быть совместимы со сгенерированными OpenAPI-типами.
 - Использовать domain types, discriminated unions, inference для очевидных типов и unknown для неизвестных внешних данных.
 - Не подавлять ошибки TypeScript без объяснимой причины.
 - Имена отражают назначение: observation, selectedAnimalIds, openObservation. Boolean: is/has/can/should; компоненты: PascalCase; hooks: use.

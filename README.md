@@ -11,15 +11,12 @@
 - просмотр подробностей встречи в диалоге;
 - подтверждение или опровержение встречи;
 - добавление новой встречи с выбором животного, места и времени;
+- интеграция с серверным API, включая анонимный токен клиента;
 - определение текущего местоположения средствами браузера;
 - автоматический выбор русского языка, если он указан среди языков устройства, иначе английского;
 - адаптивный интерфейс и ресурсы локализации для русского и английского языков;
 - компонентные примеры в Storybook, модульные/интеграционные тесты на Vitest и сквозные тесты на
   Playwright.
-
-Пока не реализованы:
-
-- интеграция с реальным серверным API;
 
 Основная страница — карта. Сценарии карты открываются в overlay без её размонтирования. Архитектура допускает добавление других самостоятельных страниц по мере появления требований.
 
@@ -31,6 +28,9 @@
 npm ci
 npm run dev
 ```
+
+Для работы с API установите зависимости и запустите backend по инструкции в `animals-be/README.md`.
+Backend должен слушать `127.0.0.1:3000`; Vite проксирует туда `/api`.
 
 ## Проверки и сборка
 
@@ -62,7 +62,7 @@ npm run build-storybook
 
 ## Стек
 
-React, TypeScript, Vite, MapLibre GL JS, TanStack Query, React Hook Form, Zod, i18next и react-i18next. Для стилей используются CSS Modules и CSS Custom Properties. Тестирование построено на Vitest, React Testing Library и user-event; Playwright установлен для будущих сквозных тестов.
+React, TypeScript, Vite, MapLibre GL JS, TanStack Query, React Hook Form, Zod, i18next и react-i18next. Для стилей используются CSS Modules и CSS Custom Properties. Unit- и component-тесты используют Vitest, React Testing Library и user-event; ключевые пользовательские сценарии проверяются через Playwright.
 
 ## Структура
 
@@ -77,6 +77,10 @@ src/
 └── shared/    # Общий API-клиент, UI-примитивы и utilities
 ```
 
-Направление зависимостей между слоями: `app → pages → widgets → features → entities → shared`. Данные встреч пока предоставляются локальной имитацией API.
+Направление зависимостей между слоями: `app → pages → widgets → features → entities → shared`.
+
+API-контракт описывается OpenAPI backend-приложения. После установки зависимостей обоих
+приложений выполните `npm run api:generate`, чтобы экспортировать OpenAPI и сгенерировать
+frontend-типы; `npm run api:check` проверяет оба артефакта и используется в pre-push hook.
 
 Подробности зафиксированы в документации по [архитектуре](docs/architecture.md), [продукту](docs/product.md), [интерфейсу](docs/ui.md), [стилю кода](docs/code-style.md) и [тестированию](docs/testing.md).

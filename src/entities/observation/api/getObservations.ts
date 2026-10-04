@@ -1,15 +1,28 @@
 import { apiRequest } from '../../../shared/api'
+import type { ListObservationsData, ListObservationsResponses } from '../../../shared/api/generated'
 import { observationMapResponseSchema, type ObservationMapQuery } from '../model/observation'
 
-export function getObservations(query: ObservationMapQuery) {
-  const searchParams = new URLSearchParams({
+export async function getObservations(query: ObservationMapQuery) {
+  const parameters: ListObservationsData['query'] = {
     animalIds: query.animalIds.join(','),
     period: query.period,
-    west: String(query.bounds.west),
-    south: String(query.bounds.south),
-    east: String(query.bounds.east),
-    north: String(query.bounds.north),
+    west: query.bounds.west,
+    south: query.bounds.south,
+    east: query.bounds.east,
+    north: query.bounds.north,
+  }
+  const searchParams = new URLSearchParams({
+    animalIds: parameters.animalIds,
+    period: parameters.period,
+    west: String(parameters.west),
+    south: String(parameters.south),
+    east: String(parameters.east),
+    north: String(parameters.north),
   })
 
-  return apiRequest(`/observations?${searchParams}`, observationMapResponseSchema)
+  const response: ListObservationsResponses[200] = await apiRequest(
+    `/observations?${searchParams}`,
+    observationMapResponseSchema,
+  )
+  return response
 }

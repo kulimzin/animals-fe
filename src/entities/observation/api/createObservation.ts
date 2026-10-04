@@ -1,5 +1,9 @@
 import { z } from 'zod'
 import { apiRequest } from '../../../shared/api'
+import type {
+  CreateObservationData,
+  CreateObservationResponses,
+} from '../../../shared/api/generated'
 import {
   createObservationInputSchema,
   observationDetailsSchema,
@@ -7,25 +11,26 @@ import {
 } from '../model/observation'
 
 const createObservationResponseSchema = z.object({
-  data: observationDetailsSchema,
+  item: observationDetailsSchema,
 })
 
 export async function createObservation(input: CreateObservationInput) {
   const observationInput = createObservationInputSchema.parse(input)
-  const response = await apiRequest('/observations', createObservationResponseSchema, {
-    method: 'POST',
-    headers: { 'Idempotency-Key': crypto.randomUUID() },
-    body: JSON.stringify({
-      animalId: observationInput.animalId,
-      location: {
-        longitude: observationInput.location.longitude,
-        latitude: observationInput.location.latitude,
-      },
-      observedAt: observationInput.observedAt,
-      locationLabel: observationInput.location.label,
-      note: observationInput.note,
-    }),
-  })
+  const body: CreateObservationData['body'] = {
+    animalId: observationInput.animalId,
+    location: observationInput.location,
+    observedAt: observationInput.observedAt,
+    note: observationInput.note,
+  }
+  const response: CreateObservationResponses[201] = await apiRequest(
+    '/observations',
+    createObservationResponseSchema,
+    {
+      method: 'POST',
+      headers: { 'Idempotency-Key': crypto.randomUUID() },
+      body: JSON.stringify(body),
+    },
+  )
 
-  return response.data
+  return response.item
 }

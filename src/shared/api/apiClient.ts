@@ -1,22 +1,21 @@
 import { z } from 'zod'
+import type { CreateClientResponses } from './generated'
 
 const CLIENT_TOKEN_STORAGE_KEY = 'animals.clientToken'
 
 const clientTokenResponseSchema = z.object({
-  data: z.object({
-    token: z.string().regex(/^[A-Za-z0-9_-]{43}$/),
-  }),
+  token: z.string().regex(/^[A-Za-z0-9_-]{43}$/),
 })
 
 const errorResponseSchema = z.object({
   error: z.object({
     code: z.string(),
     message: z.string(),
-    details: z
+    fieldErrors: z
       .array(
         z.object({
-          path: z.string(),
-          message: z.string(),
+          field: z.string(),
+          code: z.string(),
         }),
       )
       .optional(),
@@ -109,9 +108,11 @@ async function issueClientToken() {
     return throwApiError(response)
   }
 
-  const parsedResponse = clientTokenResponseSchema.parse(await readJson(response))
-  storeClientToken(parsedResponse.data.token)
-  return parsedResponse.data.token
+  const parsedResponse: CreateClientResponses[201] = clientTokenResponseSchema.parse(
+    await readJson(response),
+  )
+  storeClientToken(parsedResponse.token)
+  return parsedResponse.token
 }
 
 async function getClientToken() {

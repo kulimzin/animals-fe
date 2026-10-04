@@ -2,19 +2,26 @@
 
 ## Команды проекта
 
-| Команда                      | Назначение                                       |
-| ---------------------------- | ------------------------------------------------ |
-| `npm run lint`               | ESLint                                           |
-| `npm run format`             | Форматирование проекта с помощью Prettier        |
-| `npm run format:check`       | Проверка форматирования без изменения файлов     |
-| `npm test`                   | Unit- и component-тесты через Vitest             |
-| `npm run test:e2e`           | Сквозные тесты через Playwright                  |
-| `npm run build`              | TypeScript через tsc -b и production-сборка Vite |
-| `./node_modules/.bin/tsc -b` | Только проверка TypeScript, если сборка не нужна |
+| Команда                      | Назначение                                         |
+| ---------------------------- | -------------------------------------------------- |
+| `npm run lint`               | ESLint                                             |
+| `npm run format`             | Форматирование проекта с помощью Prettier          |
+| `npm run format:check`       | Проверка форматирования без изменения файлов       |
+| `npm test`                   | Unit- и component-тесты через Vitest               |
+| `npm run test:e2e`           | Сквозные тесты через Playwright                    |
+| `npm run api:generate`       | Экспорт backend OpenAPI и генерация frontend-типов |
+| `npm run api:check`          | Проверка актуальности OpenAPI и frontend-типов     |
+| `npm run build`              | TypeScript через tsc -b и production-сборка Vite   |
+| `./node_modules/.bin/tsc -b` | Только проверка TypeScript, если сборка не нужна   |
 
 Lefthook устанавливает Git hooks при `npm install`: pre-commit форматирует staged-файлы и проверяет
-staged TypeScript-файлы ESLint, а pre-push запускает полный lint, проверку форматирования, сборку и
-unit- и component-тесты.
+staged TypeScript-файлы ESLint, а pre-push запускает lint, проверку форматирования, сборку, unit- и
+component-тесты и сверку сгенерированного API-контракта.
+
+`api:generate`, `api:check` и pre-push-проверка контракта требуют установленных зависимостей в соседнем
+`animals-be` (`npm ci`); запуск базы данных для генерации и проверки OpenAPI не нужен. Playwright
+запускает Vite, но не backend: для E2E-сценариев, не перехватывающих API целиком, backend должен быть
+доступен на `127.0.0.1:3000`.
 
 Vitest, React Testing Library, user-event и Playwright установлены. Unit- и component-тесты
 запускаются командой `npm test`, сквозные сценарии — `npm run test:e2e`.

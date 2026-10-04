@@ -14,13 +14,13 @@ test('loads icons for animal groups added after the map initialization', async (
   await page.route(MAP_STYLE_URL, async (route) => {
     await route.fulfill({ json: { version: 8, sources: {}, layers: [] } })
   })
-  await page.route('**/api/v1/client-tokens', async (route) => {
-    await route.fulfill({ json: { data: { token: 'a'.repeat(43) } } })
+  await page.route('**/api/v1/clients', async (route) => {
+    await route.fulfill({ json: { token: 'a'.repeat(43) } })
   })
   await page.route('**/api/v1/animals', async (route) => {
     await route.fulfill({
       json: {
-        data: [
+        items: [
           { id: catId, slug: 'cat', name: { ru: 'Кошка', en: 'Cat' } },
           { id: foxId, slug: 'fox', name: { ru: 'Лиса', en: 'Fox' } },
         ],

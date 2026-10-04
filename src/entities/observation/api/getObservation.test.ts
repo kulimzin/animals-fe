@@ -23,7 +23,7 @@ describe('getObservation', () => {
       confirmationPercent: null,
       userVote: null,
     }
-    vi.mocked(apiRequest).mockResolvedValue({ data: observation })
+    vi.mocked(apiRequest).mockResolvedValue({ item: observation })
 
     await expect(getObservation(observation.id)).resolves.toEqual({ item: observation })
     expect(apiRequest).toHaveBeenCalledWith(`/observations/${observation.id}`, expect.anything())
