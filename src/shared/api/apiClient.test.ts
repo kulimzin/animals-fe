@@ -23,7 +23,7 @@ describe('apiRequest', () => {
   it('issues one client token for concurrent authenticated requests', async () => {
     const fetchMock = vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
       if (input === '/api/v1/clients') {
-        return Promise.resolve(jsonResponse({ data: { token: firstToken } }, 201))
+        return Promise.resolve(jsonResponse({ token: firstToken }, 201))
       }
 
       expect(new Headers(init?.headers).get('Authorization')).toBe(`Bearer ${firstToken}`)
@@ -57,7 +57,7 @@ describe('apiRequest', () => {
     localStorage.setItem('animals.clientToken', firstToken)
     const fetchMock = vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
       if (input === '/api/v1/clients') {
-        return Promise.resolve(jsonResponse({ data: { token: secondToken } }, 201))
+        return Promise.resolve(jsonResponse({ token: secondToken }, 201))
       }
 
       const authorization = new Headers(init?.headers).get('Authorization')

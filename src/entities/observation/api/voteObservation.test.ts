@@ -22,7 +22,7 @@ describe('voteObservation', () => {
       confirmationPercent: 100,
       userVote: 'confirm' as const,
     }
-    vi.mocked(apiRequest).mockResolvedValue({ data: observation })
+    vi.mocked(apiRequest).mockResolvedValue({ item: observation })
 
     await expect(voteObservation(observation.id, 'confirm')).resolves.toEqual(observation)
     expect(apiRequest).toHaveBeenCalledWith(

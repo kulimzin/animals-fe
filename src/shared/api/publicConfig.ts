@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { z } from 'zod'
 import { apiRequest } from './apiClient'
+import type { GetConfigResponses } from './generated'
 
 const publicConfigSchema = z.object({
   descriptionsEnabled: z.boolean(),
@@ -11,7 +12,9 @@ const publicConfigSchema = z.object({
 export const publicConfigQueryKey = ['public-config'] as const
 
 export function getPublicConfig() {
-  return apiRequest('/config', publicConfigSchema)
+  return apiRequest('/config', publicConfigSchema).then(
+    (response): GetConfigResponses[200] => response,
+  )
 }
 
 export function usePublicConfig() {

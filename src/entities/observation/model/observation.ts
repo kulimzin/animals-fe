@@ -21,7 +21,7 @@ export const observationMapItemSchema = z.object({
 export const observationMapResponseSchema = z.object({
   items: z.array(observationMapItemSchema),
   truncated: z.boolean(),
-  limit: z.number().int().positive(),
+  limit: z.literal(2_000),
 })
 
 export const observationVoteSchema = z.enum(['confirm', 'reject'])

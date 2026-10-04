@@ -23,3 +23,6 @@ pre-push:
 
     - name: test
       run: npm test
+
+    - name: api-contract
+      run: npm run api:check

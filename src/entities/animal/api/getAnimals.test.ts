@@ -13,7 +13,7 @@ beforeEach(() => {
 describe('getAnimals', () => {
   it('validates the API response', async () => {
     vi.mocked(apiRequest).mockResolvedValue({
-      data: [
+      items: [
         {
           id: '2416c275-4cd6-5c44-b4c9-d10b4d152fb2',
           slug: 'cat',
