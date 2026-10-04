@@ -38,6 +38,10 @@
   margin-top: var(--space-2);
 }
 
+.map :global(.maplibregl-ctrl-group button.maplibregl-ctrl-geolocate[class] .maplibregl-ctrl-icon) {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='29' height='29' viewBox='0 0 29 29' fill='none' stroke='%23333' stroke-width='2.5' stroke-linecap='round'%3E%3Ccircle cx='14.5' cy='14.5' r='7'/%3E%3Cpath d='M14.5 4.5v3M14.5 21.5v3M4.5 14.5h3M21.5 14.5h3'/%3E%3Ccircle cx='14.5' cy='14.5' r='2.5' fill='%23333' stroke='none'/%3E%3C/svg%3E");
+}
+
 .map :global(.maplibregl-ctrl-attrib) {
   background-color: rgb(255 253 247 / 75%);
 }

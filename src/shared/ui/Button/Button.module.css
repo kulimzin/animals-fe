@@ -88,10 +88,12 @@
 
 .danger:not(:disabled):hover {
   background-color: var(--color-action-danger-hover);
+  color: var(--color-action-on-danger);
 }
 
 .danger:not(:disabled):active {
   background-color: var(--color-action-danger-active);
+  color: var(--color-action-on-danger);
 }
 
 .danger:disabled {
