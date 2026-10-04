@@ -8,15 +8,45 @@
 .filterControl {
   position: absolute;
   z-index: 1;
-  top: var(--space-4);
-  left: var(--space-4);
+  top: var(--space-6);
+  left: var(--space-6);
 }
 
 .addControl {
   position: absolute;
   z-index: 1;
-  bottom: var(--space-4);
-  left: var(--space-4);
+  bottom: var(--space-6);
+  left: var(--space-6);
+}
+
+.filterButton {
+  min-height: 3.25rem;
+  padding: 0 var(--space-5) 0 var(--space-2);
+  border: 0;
+  background-color: rgb(255 253 247 / 94%);
+  box-shadow: var(--shadow-control);
+  color: #17492f;
+  backdrop-filter: blur(0.625rem);
+}
+
+.filterButton > span:first-child {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background-color: #174f33;
+  color: #ffffff;
+}
+
+.addButton {
+  width: 4.5rem;
+  height: 4.5rem;
+  border: 0.125rem solid rgb(255 255 255 / 82%);
+  box-shadow: 0 0.625rem 1.5rem rgb(102 54 38 / 25%);
+}
+
+.addButton svg {
+  width: 2rem;
+  height: 2rem;
 }
 
 .locationSelection {
@@ -38,6 +68,16 @@
 }
 
 @media (max-width: 40rem) {
+  .filterControl {
+    top: var(--space-4);
+    left: var(--space-4);
+  }
+
+  .addControl {
+    bottom: var(--space-4);
+    left: var(--space-4);
+  }
+
   .locationSelection {
     top: auto;
     right: var(--space-3);
@@ -47,21 +87,7 @@
     transform: none;
   }
 
-  .filterControl > button {
-    width: var(--control-height);
-    padding: 0;
-  }
-
-  .filterControl > button > :last-child {
-    display: none;
-  }
-
-  .addControl > button {
-    width: var(--control-height);
-    padding: 0;
-  }
-
-  .addControl > button > :last-child {
-    display: none;
+  .filterButton {
+    min-height: 3.25rem;
   }
 }

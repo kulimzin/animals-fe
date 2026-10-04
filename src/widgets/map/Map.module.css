@@ -1,8 +1,50 @@
 .map {
   width: 100%;
   height: 100%;
+  background-color: #dfe7d5;
 }
 
 .map :global(.maplibregl-ctrl-attrib-inner a[href*='openfreemap.org']) {
   display: none;
+}
+
+.map :global(.maplibregl-ctrl-top-right) {
+  top: var(--space-4);
+  right: var(--space-4);
+}
+
+.map :global(.maplibregl-ctrl-group) {
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  background-color: rgb(255 253 247 / 92%);
+  box-shadow: var(--shadow-control);
+  backdrop-filter: blur(0.5rem);
+}
+
+.map :global(.maplibregl-ctrl-group:not(:empty)) {
+  box-shadow: var(--shadow-control);
+}
+
+.map :global(.maplibregl-ctrl-group button) {
+  width: 2.75rem;
+  height: 2.75rem;
+}
+
+.map :global(.maplibregl-ctrl-group button + button) {
+  border-top-color: rgb(214 213 205 / 75%);
+}
+
+.map :global(.maplibregl-ctrl-geolocate) {
+  margin-top: var(--space-2);
+}
+
+.map :global(.maplibregl-ctrl-attrib) {
+  background-color: rgb(255 253 247 / 75%);
+}
+
+@media (max-width: 40rem) {
+  .map :global(.maplibregl-ctrl-top-right) {
+    top: var(--space-2);
+    right: var(--space-2);
+  }
 }

@@ -96,25 +96,30 @@ export function MapPage() {
               aria-expanded={overlay.type === 'filters'}
               aria-haspopup="dialog"
               aria-label={t('map.filters')}
+              className={styles.filterButton}
               leadingIcon={<Icon name="filter" />}
               onClick={() => {
                 setOverlay({ type: 'filters' })
               }}
+              variant="secondary"
             >
               {t('map.filters')}
+              {selectedAnimalIds.length > 0 ? (
+                <span aria-hidden="true"> · {selectedAnimalIds.length}</span>
+              ) : null}
             </Button>
           </div>
           <div className={styles.addControl}>
             <Button
               aria-label={t('map.addObservation')}
               aria-haspopup="dialog"
+              className={styles.addButton}
+              isIconOnly
               leadingIcon={<Icon name="plus" />}
               onClick={() => {
                 setOverlay({ type: 'add-observation', mode: 'form', location: null })
               }}
-            >
-              {t('map.addObservation')}
-            </Button>
+            />
           </div>
         </>
       ) : null}
