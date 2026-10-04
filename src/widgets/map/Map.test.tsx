@@ -128,7 +128,7 @@ function triggerMapEvent(eventName: string) {
 }
 
 describe('Map controls', () => {
-  it('renders localized animal names above encounter points', () => {
+  it('renders the first letter of the localized animal name inside encounter markers', () => {
     render(
       <Map
         animals={[{ id: 'cat-id', slug: 'cat', name: { ru: 'Кошка', en: 'Cat' } }]}
@@ -153,27 +153,26 @@ describe('Map controls', () => {
     const observationSource = mapLibreMocks.addSource.mock.calls.find(
       ([sourceId]) => sourceId === 'observations',
     )?.[1]
-    const labelLayer = mapLibreMocks.addLayer.mock.calls
+    const initialLayer = mapLibreMocks.addLayer.mock.calls
       .map(([layer]) => layer)
       .find(
         (layer) =>
           typeof layer === 'object' &&
           layer !== null &&
           'id' in layer &&
-          layer.id === 'observation-labels',
+          layer.id === 'observation-initials',
       )
 
     expect(observationSource).toMatchObject({
       data: {
-        features: [{ properties: { animalName: 'Кошка' } }],
+        features: [{ properties: { animalInitial: 'К' } }],
       },
     })
-    expect(labelLayer).toMatchObject({
-      id: 'observation-labels',
+    expect(initialLayer).toMatchObject({
+      id: 'observation-initials',
       layout: {
-        'icon-image': 'observation-label-background',
-        'icon-text-fit': 'both',
-        'text-field': ['get', 'animalName'],
+        'text-allow-overlap': true,
+        'text-field': ['get', 'animalInitial'],
       },
       type: 'symbol',
     })
