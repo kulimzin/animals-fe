@@ -13,7 +13,7 @@
   padding: var(--space-1) var(--space-3);
   border: var(--border-width) solid var(--color-border);
   border-radius: var(--radius-md);
-  background-color: var(--color-surface);
+  background-color: rgb(255 255 255 / 52%);
   cursor: pointer;
 }
 
@@ -79,7 +79,7 @@
   padding: var(--space-3);
   overflow-y: auto;
   border: var(--border-width) solid var(--color-border);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   background-color: var(--color-surface);
   box-shadow: var(--shadow-overlay);
 }
@@ -103,7 +103,7 @@
   min-height: var(--control-height);
   padding: 0 var(--space-3) 0 calc(var(--space-6) + var(--space-3));
   border: var(--border-width) solid var(--color-border);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   outline: none;
   background-color: var(--color-surface);
   color: var(--color-text-primary);
@@ -168,7 +168,7 @@
   min-height: var(--control-height);
   gap: var(--space-3);
   padding: var(--space-2) var(--space-3);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   color: var(--color-text-primary);
   text-align: left;
 }

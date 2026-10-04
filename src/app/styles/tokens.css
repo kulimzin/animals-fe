@@ -1,52 +1,52 @@
 :root {
-  --color-background: #f7faf8;
-  --color-overlay: rgb(15 23 42 / 34%);
-  --color-surface: #ffffff;
-  --color-surface-subtle: #f3f8f5;
-  --color-surface-selected: #ecfdf3;
-  --color-surface-success: #e9f9ef;
-  --color-surface-danger: #fff0f0;
+  --color-background: #f4f1e8;
+  --color-overlay: rgb(15 29 23 / 58%);
+  --color-surface: #fffdf7;
+  --color-surface-subtle: #f4f1e8;
+  --color-surface-selected: #e7f0e8;
+  --color-surface-success: #e5f1e8;
+  --color-surface-danger: #fff0eb;
 
-  --color-text-primary: #1d2939;
-  --color-text-secondary: #667085;
-  --color-text-disabled: #98a2b3;
-  --color-text-selected: #137a39;
-  --color-text-success: #137a39;
-  --color-text-danger: #b42318;
+  --color-text-primary: #15201e;
+  --color-text-secondary: #55615e;
+  --color-text-disabled: #929a96;
+  --color-text-selected: #1d6541;
+  --color-text-success: #1d6541;
+  --color-text-danger: #b74532;
 
-  --color-border: #dce7df;
-  --color-border-focus: #15803d;
-  --color-border-selected: #bbf7d0;
+  --color-border: #d6d5cd;
+  --color-border-focus: #2b704b;
+  --color-border-selected: #82a990;
 
-  --color-action-primary: #15803d;
-  --color-action-primary-hover: #166534;
-  --color-action-primary-active: #14532d;
+  --color-action-primary: #ef684d;
+  --color-action-primary-hover: #df5a41;
+  --color-action-primary-active: #cc4f38;
   --color-action-on-primary: #ffffff;
-  --color-action-secondary-hover: #eaf3ed;
-  --color-action-secondary-active: #dce9e0;
-  --color-action-success: #15803d;
-  --color-action-success-hover: #166534;
-  --color-action-success-active: #14532d;
+  --color-action-secondary-hover: #f0eee5;
+  --color-action-secondary-active: #e6e2d7;
+  --color-action-success: #216a45;
+  --color-action-success-hover: #185638;
+  --color-action-success-active: #12452d;
   --color-action-on-success: #ffffff;
-  --color-action-danger: #dc2626;
-  --color-action-danger-hover: #b91c1c;
-  --color-action-danger-active: #991b1b;
+  --color-action-danger: #ef684d;
+  --color-action-danger-hover: #df5a41;
+  --color-action-danger-active: #cc4f38;
   --color-action-on-danger: #ffffff;
 
-  --color-status-success: #16a34a;
-  --color-status-danger: #dc2626;
-  --color-animal: #f97316;
+  --color-status-success: #216a45;
+  --color-status-danger: #d95640;
+  --color-animal: #ef684d;
 
   --font-family-sans:
     Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-size-caption: 0.8125rem;
   --font-size-body: 1rem;
-  --font-size-heading: 1.1875rem;
-  --font-size-title: 1.375rem;
+  --font-size-heading: 1.25rem;
+  --font-size-title: 1.75rem;
   --line-height-caption: 1.25rem;
   --line-height-body: 1.5rem;
   --line-height-heading: 1.5rem;
-  --line-height-title: 1.75rem;
+  --line-height-title: 2.125rem;
   --font-weight-regular: 400;
   --font-weight-medium: 500;
   --font-weight-semibold: 600;
@@ -60,16 +60,18 @@
   --space-6: 1.5rem;
   --space-8: 2rem;
 
-  --radius-sm: 0.5rem;
-  --radius-md: 0.625rem;
-  --radius-lg: 1rem;
+  --radius-sm: 0.75rem;
+  --radius-md: 0.875rem;
+  --radius-lg: 1.75rem;
+  --radius-pill: 999rem;
   --border-width: 0.0625rem;
 
-  --control-height-compact: 2.25rem;
-  --control-height: 2.625rem;
+  --control-height-compact: 2.5rem;
+  --control-height: 3.5rem;
 
-  --shadow-overlay: 0 0.875rem 2.375rem rgb(30 41 59 / 16%), 0 0.125rem 0.5rem rgb(30 41 59 / 6%);
-  --focus-ring: 0 0 0 0.1875rem rgb(21 128 61 / 13%);
-  --focus-ring-danger: 0 0 0 0.1875rem rgb(220 38 38 / 13%);
+  --shadow-overlay: 0 1.25rem 3.5rem rgb(32 45 38 / 20%), 0 0.25rem 1rem rgb(32 45 38 / 8%);
+  --shadow-control: 0 0.375rem 1.25rem rgb(32 45 38 / 16%);
+  --focus-ring: 0 0 0 0.1875rem rgb(33 106 69 / 16%);
+  --focus-ring-danger: 0 0 0 0.1875rem rgb(239 104 77 / 18%);
   --transition-duration-fast: 150ms;
 }
