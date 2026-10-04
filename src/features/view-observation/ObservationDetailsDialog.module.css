@@ -5,21 +5,8 @@
 }
 
 .animal {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
   font-size: var(--font-size-title);
   line-height: var(--line-height-title);
-}
-
-.animalIcon {
-  display: grid;
-  width: 4rem;
-  height: 4rem;
-  place-items: center;
-  border-radius: 50%;
-  background-color: #f5ddd2;
-  color: var(--color-animal);
 }
 
 .details {

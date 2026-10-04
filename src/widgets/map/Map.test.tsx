@@ -1,16 +1,10 @@
 // @vitest-environment jsdom
 
-import { cleanup, render, waitFor } from '@testing-library/react'
+import { cleanup, render } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { i18n } from '../../shared/i18n/i18n'
 import { Map } from './Map'
-
-vi.mock('../../shared/ui/AnimalIcon', () => ({
-  createAnimalIconImage: vi.fn(() =>
-    Promise.resolve({ data: new Uint8ClampedArray(4), height: 1, width: 1 }),
-  ),
-}))
 
 const mapLibreMocks = vi.hoisted(() => ({
   addLayer: vi.fn<(layer: unknown) => void>(),
@@ -134,7 +128,7 @@ function triggerMapEvent(eventName: string) {
 }
 
 describe('Map controls', () => {
-  it('renders animal icons above encounter points', async () => {
+  it('renders localized animal names above encounter points', () => {
     render(
       <Map
         animals={[{ id: 'cat-id', slug: 'cat', name: { ru: 'Кошка', en: 'Cat' } }]}
@@ -156,30 +150,31 @@ describe('Map controls', () => {
 
     triggerMapEvent('load')
 
-    await mapLibreMocks.missingStyleImageResolver?.('animal-icon-cat')
-    await waitFor(() => expect(mapLibreMocks.addImage).toHaveBeenCalled())
-
     const observationSource = mapLibreMocks.addSource.mock.calls.find(
       ([sourceId]) => sourceId === 'observations',
     )?.[1]
-    const iconLayer = mapLibreMocks.addLayer.mock.calls
+    const labelLayer = mapLibreMocks.addLayer.mock.calls
       .map(([layer]) => layer)
       .find(
         (layer) =>
           typeof layer === 'object' &&
           layer !== null &&
           'id' in layer &&
-          layer.id === 'observation-icons',
+          layer.id === 'observation-labels',
       )
 
     expect(observationSource).toMatchObject({
       data: {
-        features: [{ properties: { animalIcon: 'animal-icon-cat' } }],
+        features: [{ properties: { animalName: 'Кошка' } }],
       },
     })
-    expect(iconLayer).toMatchObject({
-      id: 'observation-icons',
-      layout: { 'icon-image': ['get', 'animalIcon'] },
+    expect(labelLayer).toMatchObject({
+      id: 'observation-labels',
+      layout: {
+        'icon-image': 'observation-label-background',
+        'icon-text-fit': 'both',
+        'text-field': ['get', 'animalName'],
+      },
       type: 'symbol',
     })
   })
