@@ -1,11 +1,13 @@
 import { expect, test } from '@playwright/test'
 import { MAP_STYLE_URL } from '../src/shared/config/map.js'
+import { mockApi } from './mockApi.js'
 
 test('loads icons for animal groups added after the map initialization', async ({ page }) => {
   const catId = '2416c275-4cd6-5c44-b4c9-d10b4d152fb2'
   const foxId = '4187ce96-5986-5800-9ad6-35dd600508ec'
   const missingImageWarnings: string[] = []
 
+  await mockApi(page)
   page.on('console', (message) => {
     if (message.text().includes('could not be loaded')) {
       missingImageWarnings.push(message.text())
@@ -13,19 +15,6 @@ test('loads icons for animal groups added after the map initialization', async (
   })
   await page.route(MAP_STYLE_URL, async (route) => {
     await route.fulfill({ json: { version: 8, sources: {}, layers: [] } })
-  })
-  await page.route('**/api/v1/clients', async (route) => {
-    await route.fulfill({ json: { token: 'a'.repeat(43) } })
-  })
-  await page.route('**/api/v1/animals', async (route) => {
-    await route.fulfill({
-      json: {
-        items: [
-          { id: catId, slug: 'cat', name: { ru: 'Кошка', en: 'Cat' } },
-          { id: foxId, slug: 'fox', name: { ru: 'Лиса', en: 'Fox' } },
-        ],
-      },
-    })
   })
   await page.route('**/api/v1/observations?*', async (route) => {
     const animalId = route.request().url().includes(foxId) ? foxId : catId

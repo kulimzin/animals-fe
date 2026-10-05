@@ -1,5 +1,6 @@
 import { expect, test, type Page } from '@playwright/test'
 import { MAP_STYLE_URL } from '../src/shared/config/map.js'
+import { mockApi } from './mockApi.js'
 
 const emptyMapStyle = {
   version: 8,
@@ -26,6 +27,7 @@ test('filters encounters and opens a matching map marker', async ({ page }) => {
   const observationId = 'e2e-cat-observation'
   let selectedAnimalId = ''
 
+  await mockApi(page)
   await page.route('**/api/v1/observations?**', async (route) => {
     const animalId = new URL(route.request().url()).searchParams.get('animalIds')?.split(',')[0]
     selectedAnimalId = animalId ?? ''
@@ -99,13 +101,90 @@ test('filters encounters and opens a matching map marker', async ({ page }) => {
 })
 
 test('opens an encounter and changes the vote', async ({ page }) => {
+  const observationId = 'e2e-voting-observation'
+  let animalId = ''
+  const votes = { confirm: 12, reject: 1 }
+  let userVote: 'confirm' | 'reject' | null = null
+
+  await mockApi(page)
+  await page.route('**/api/v1/observations?*', async (route) => {
+    animalId = new URL(route.request().url()).searchParams.get('animalIds')?.split(',')[0] ?? ''
+    await route.fulfill({
+      json: {
+        items: [
+          {
+            id: observationId,
+            animalId,
+            location: { latitude: 55.7558, longitude: 37.6176 },
+            observedAt: '2026-10-04T10:00:00.000Z',
+            votes,
+            confirmationPercent: 92,
+          },
+        ],
+        truncated: false,
+        limit: 2_000,
+      },
+    })
+  })
+
+  await page.route(`**/api/v1/observations/${observationId}`, async (route) => {
+    await route.fulfill({
+      json: {
+        item: {
+          id: observationId,
+          animalId,
+          location: {
+            latitude: 55.7558,
+            longitude: 37.6176,
+            label: 'Manezhnaya Square, Moscow',
+          },
+          observedAt: '2026-10-04T10:00:00.000Z',
+          note: null,
+          votes,
+          confirmationPercent: Math.round((votes.confirm / (votes.confirm + votes.reject)) * 100),
+          userVote,
+        },
+      },
+    })
+  })
+
+  await page.route(`**/api/v1/observations/${observationId}/vote`, async (route) => {
+    const nextVote = (route.request().postDataJSON() as { value: 'confirm' | 'reject' | null })
+      .value
+    if (userVote === 'confirm') votes.confirm -= 1
+    if (userVote === 'reject') votes.reject -= 1
+    if (nextVote === 'confirm') votes.confirm += 1
+    if (nextVote === 'reject') votes.reject += 1
+    userVote = nextVote
+
+    await route.fulfill({
+      json: {
+        item: {
+          id: observationId,
+          animalId,
+          location: {
+            latitude: 55.7558,
+            longitude: 37.6176,
+            label: 'Manezhnaya Square, Moscow',
+          },
+          observedAt: '2026-10-04T10:00:00.000Z',
+          note: null,
+          votes,
+          confirmationPercent: Math.round((votes.confirm / (votes.confirm + votes.reject)) * 100),
+          userVote,
+        },
+      },
+    })
+  })
+
   await openMap(page)
 
+  await page.getByRole('button', { name: 'Close filter reminder' }).click()
   await page.getByRole('button', { name: 'Filters' }).click()
   await selectAnimal(page, 'Cat')
 
-  await page.getByRole('button', { name: 'Filters' }).click()
   await page.getByRole('button', { name: 'Last hour' }).click()
+  await page.getByRole('button', { name: 'Close filters' }).click()
 
   const map = page.getByRole('region', { name: 'Map' })
   await map.click({ position: { x: 640, y: 360 } })
@@ -139,8 +218,10 @@ test.describe('publishing an encounter', () => {
   })
 
   test('publishes a valid encounter from the current location', async ({ page }) => {
+    await mockApi(page)
     await openMap(page)
 
+    await page.getByRole('button', { name: 'Close filter reminder' }).click()
     await page.getByRole('button', { name: 'Add encounter' }).click()
     await selectAnimal(page, 'Fox')
     await page.getByRole('button', { name: 'Current location' }).click()
