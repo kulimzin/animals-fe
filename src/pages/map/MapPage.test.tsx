@@ -149,6 +149,8 @@ describe('MapPage encounter flow', () => {
       </QueryClientProvider>,
     )
 
+    await user.click(screen.getByRole('button', { name: 'Закрыть напоминание о фильтрах' }))
+
     const mapMarker = screen.getByRole('button', { name: 'Точка встречи' })
     await user.click(screen.getByRole('button', { name: 'Добавить встречу' }))
 
@@ -172,6 +174,8 @@ describe('MapPage encounter flow', () => {
         <MapPage />
       </QueryClientProvider>,
     )
+
+    await user.click(screen.getByRole('button', { name: 'Закрыть напоминание о фильтрах' }))
 
     await user.click(screen.getByRole('button', { name: 'Добавить встречу' }))
     await user.click(screen.getByRole('button', { name: 'Выбрать на карте' }))
@@ -197,6 +201,8 @@ describe('MapPage encounter flow', () => {
         <MapPage />
       </QueryClientProvider>,
     )
+
+    await user.click(screen.getByRole('button', { name: 'Закрыть напоминание о фильтрах' }))
 
     const mapMarker = screen.getByRole('button', { name: 'Точка встречи' })
     await user.click(screen.getByRole('button', { name: 'Фильтры' }))
