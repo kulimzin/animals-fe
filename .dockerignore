@@ -1,0 +1,11 @@
+.git
+.env*
+AGENTS.md
+node_modules
+dist
+coverage
+test-results
+playwright-report
+storybook-static
+debug-storybook.log
+*.tsbuildinfo
